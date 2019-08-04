@@ -99,7 +99,7 @@ services:
       replicas: 2      
     restart: always
   connector-opencti:
-    image: opencti/connector-opencti:1.1.1
+    image: opencti/connector-opencti:1.1.2
     environment:
       - RABBITMQ_HOSTNAME=rabbitmq
       - RABBITMQ_PORT=5672 
@@ -115,7 +115,7 @@ services:
       - opencti
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:1.1.1
+    image: opencti/connector-mitre:1.1.2
     environment:
       - RABBITMQ_HOSTNAME=rabbitmq
       - RABBITMQ_PORT=5672 
