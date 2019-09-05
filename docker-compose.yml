@@ -1,7 +1,7 @@
 version: '3'
 services:
   grakn:
-    image: graknlabs/grakn:1.5.7
+    image: graknlabs/grakn:1.5.8
     ports:
       - 48555:48555 
     volumes:
@@ -31,7 +31,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest    
     restart: always
   opencti:
-    image: opencti/platform:1.1.1
+    image: opencti/platform:1.1.2
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=admin@opencti.io
@@ -61,7 +61,7 @@ services:
       - rabbitmq
     restart: always
   worker-import:
-    image: opencti/worker:1.1.1
+    image: opencti/worker:1.1.2
     environment:
       - WORKER_TYPE=import
       - WORKER_LOG_LEVEL=info
@@ -80,7 +80,7 @@ services:
       replicas: 4
     restart: always
   worker-export:
-    image: opencti/worker:1.1.1
+    image: opencti/worker:1.1.2
     environment:
       - WORKER_TYPE=export
       - WORKER_LOG_LEVEL=info
