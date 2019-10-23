@@ -36,7 +36,7 @@ services:
     environment:
       MINIO_ACCESS_KEY: ChangeMeAccess
       MINIO_SECRET_KEY: ChangeMeKey
-    command: server http://minio/data
+    command: server /data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
