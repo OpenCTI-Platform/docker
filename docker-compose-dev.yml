@@ -27,7 +27,7 @@ services:
         hard: 65536
     ports:
       - 9200:9200
-      - 9300:minio
+      - 9300:9300
   opencti-dev-minio:
     container_name: opencti-dev-minio
     image: minio/minio:RELEASE.2019-10-12T01-39-57Z
