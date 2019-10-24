@@ -46,12 +46,12 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest    
     restart: always
   opencti:
-    image: opencti/platform:2.0.0
+    image: opencti/platform:rolling
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=admin@opencti.io
-      - APP__ADMIN__PASSWORD=ChangeMe
-      - APP__ADMIN__TOKEN=ChangeMe
+      - APP__ADMIN__PASSWORD=admin
+      - APP__ADMIN__TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
       - APP__LOGS=./logs
       - APP__REACTIVE=true
       - APP__COOKIE_SECURE=false
@@ -82,10 +82,10 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:2.0.0
+    image: opencti/worker:rolling
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
       - WORKER_LOG_LEVEL=info
     depends_on:
       - opencti
@@ -94,11 +94,11 @@ services:
       replicas: 1
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:2.0.0
+    image: opencti/connector-export-file-stix:rolling
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
+      - CONNECTOR_ID=79f6b85e-bbbb-484a-b475-a97c1bc6895d
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -106,23 +106,23 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:2.0.0
+    image: opencti/connector-import-file-stix:rolling
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
+      - CONNECTOR_ID=f023a2f6-cfd4-43ed-8649-d02ea1541266
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix2
       - CONNECTOR_SCOPE=application/json
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
-    restart: always
+    restart: always    
   connector-opencti:
-    image: opencti/connector-opencti:2.0.0
+    image: opencti/connector-opencti:rolling
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
+      - CONNECTOR_ID=4ae2f632-e261-4bc3-9ddc-9de7d5f89a7f
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=OpenCTI
       - CONNECTOR_SCOPE=identity,sector,region,country,city
@@ -135,11 +135,11 @@ services:
       - opencti
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:2.0.0
+    image: opencti/connector-mitre:rolling
     environment:
-      - OPENCTI_URL=http://localhost
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
+      - CONNECTOR_ID=00888f62-ddc4-40cb-83b5-22256c52c1b2
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=MITRE ATT&CK
       - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool
@@ -148,7 +148,7 @@ services:
       - MITRE_ENTERPRISE_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
       - MITRE_PRE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/pre-attack/pre-attack.json
       - MITRE_INTERVAL=7 # Days
-    restart: always
+    restart: always     
 volumes:
   grakndata:
   esdata:
