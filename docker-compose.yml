@@ -1,7 +1,7 @@
 version: '3'
 services:
   grakn:
-    image: graknlabs/grakn:1.5.8
+    image: graknlabs/grakn:1.5.9
     ports:
       - 48555:48555 
     volumes:
@@ -46,7 +46,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest    
     restart: always
   opencti:
-    image: opencti/platform:2.0.0
+    image: opencti/platform:2.0.1
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=admin@opencti.io
@@ -82,7 +82,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:2.0.0
+    image: opencti/worker:2.0.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -94,11 +94,11 @@ services:
       replicas: 1
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:2.0.0
+    image: opencti/connector-export-file-stix:2.0.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_ID=ChangeMe # Valid UUDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -106,11 +106,11 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:2.0.0
+    image: opencti/connector-import-file-stix:2.0.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_ID=ChangeMe # Valid UUDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -118,11 +118,11 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-opencti:
-    image: opencti/connector-opencti:2.0.0
+    image: opencti/connector-opencti:2.0.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_ID=ChangeMe # Valid UUDv4
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=OpenCTI
       - CONNECTOR_SCOPE=identity,sector,region,country,city
@@ -135,11 +135,11 @@ services:
       - opencti
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:2.0.0
+    image: opencti/connector-mitre:2.0.1
     environment:
-      - OPENCTI_URL=http://localhost
+      - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_ID=ChangeMe # Valid UUDv4
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=MITRE ATT&CK
       - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool
