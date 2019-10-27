@@ -1,4 +1,3 @@
-
 OpenCTI could be deployed using the *docker-compose* command.
 
 ## Clone the repository
@@ -6,7 +5,7 @@ OpenCTI could be deployed using the *docker-compose* command.
 ```bash
 $ mkdir /path/to/your/app && cd /path/to/your/app
 $ git clone https://github.com/OpenCTI-Platform/docker.git
-$ cd doker
+$ cd docker
 ```
 
 ### Configure the environment
@@ -18,7 +17,7 @@ Before running the docker-compose command, please change the admin token (this t
 - APP__ADMIN__TOKEN=ChangeMe
 ```
 
-And change the variable `OPENCTI_TOKEN` (for `worker-import` and `worker-export`) according to the value of `APP__ADMIN__TOKEN`
+And change the variable `OPENCTI_TOKEN` (for the `worker` and all connectors) according to the value of `APP__ADMIN__TOKEN`
 
 ```yaml
 - OPENCTI_TOKEN=ChangeMe
@@ -47,6 +46,16 @@ $ docker-compose --compatibility up
 
 You can now go to http://localhost:8080 and log in with the credentials configured in your environment variables.
 
+### Behind a reverse proxy
+
+If you want to use OpenCTI behind a reverse proxy with a context path, like `https://myproxy.com/opencti`, please change the base_path configuration.
+
+```yaml
+- APP__BASE_PATH=/opencti
+```
+By default OpenCTI use Websockets so dont forget to configure your proxy for this usage.
+
+
 ## Data persistence
 
 If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for both `Grakn` and `ElasticSearch` services in the `docker-compose.yml`.
@@ -65,6 +74,11 @@ volumes:
     driver_opts:
       o: bind
       type: none
+  s3data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none      
 ```
 
 ## Memory configuration
@@ -102,6 +116,10 @@ You can find more information in the [official ElasticSearch documentation](http
 Redis has a very small footprint and only provides an option to limit the maximum amount of memory that can be used by the process. You can use the option `--maxmemory` to limit the usage. 
 
 You can find more information in the [Redis docker hub](https://hub.docker.com/r/bitnami/redis/).
+
+### Minio
+
+Minio is a small process and does not require a high amount of memory. More information are available for Linux here on the [Kernel tuning guide](https://github.com/minio/minio/tree/master/docs/deployment/kernel-tuning).
 
 ### RabbitMQ
 

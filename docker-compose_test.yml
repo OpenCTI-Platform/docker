@@ -1,7 +1,7 @@
 version: '3'
 services:
   grakn:
-    image: graknlabs/grakn:1.5.8
+    image: graknlabs/grakn:1.5.9
     ports:
       - 48555:48555 
     volumes:
@@ -130,7 +130,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
       - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
       - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
-      - CONFIG_INTERVAL=1 # Days
+      - CONFIG_INTERVAL=7 # Days
     depends_on:
       - opencti
     restart: always
