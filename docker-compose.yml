@@ -94,7 +94,7 @@ services:
       replicas: 1
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:2.0.2
+    image: opencti/connector-export-file-stix:2.0.3
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -106,7 +106,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:2.0.2
+    image: opencti/connector-import-file-stix:2.0.3
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -118,7 +118,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-opencti:
-    image: opencti/connector-opencti:2.0.2
+    image: opencti/connector-opencti:2.0.3
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -135,7 +135,7 @@ services:
       - opencti
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:2.0.2
+    image: opencti/connector-mitre:2.0.3
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
