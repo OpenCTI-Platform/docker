@@ -11,7 +11,7 @@ services:
     image: redis:5.0.5
     restart: always
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
