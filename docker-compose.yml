@@ -11,7 +11,7 @@ services:
     image: redis:5.0.5
     restart: always
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -46,12 +46,13 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest    
     restart: always
   opencti:
-    image: opencti/platform:2.0.2
+    image: opencti/platform:2.1.0
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=admin@opencti.io
       - APP__ADMIN__PASSWORD=ChangeMe
       - APP__ADMIN__TOKEN=ChangeMe
+      - APP__LOGS_LEVEL=error
       - APP__LOGS=./logs
       - APP__REACTIVE=true
       - APP__COOKIE_SECURE=false
@@ -82,7 +83,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:2.0.2
+    image: opencti/worker:2.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -94,7 +95,7 @@ services:
       replicas: 1
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:2.0.3
+    image: opencti/connector-export-file-stix:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -106,7 +107,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:2.0.3
+    image: opencti/connector-import-file-stix:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -118,7 +119,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-opencti:
-    image: opencti/connector-opencti:2.0.3
+    image: opencti/connector-opencti:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
@@ -127,6 +128,7 @@ services:
       - CONNECTOR_NAME=OpenCTI
       - CONNECTOR_SCOPE=identity,sector,region,country,city
       - CONNECTOR_CONFIDENCE_LEVEL=5
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
       - CONNECTOR_LOG_LEVEL=info
       - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
       - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
@@ -135,15 +137,16 @@ services:
       - opencti
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:2.0.3
+    image: opencti/connector-mitre:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
       - CONNECTOR_ID=ChangeMe # Valid UUDv4
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=MITRE ATT&CK
-      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool
+      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report
       - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
       - CONNECTOR_LOG_LEVEL=info
       - MITRE_ENTERPRISE_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
       - MITRE_PRE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/pre-attack/pre-attack.json
