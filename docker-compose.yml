@@ -46,7 +46,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest    
     restart: always
   opencti:
-    image: opencti/platform:2.1.0
+    image: opencti/platform:2.1.1
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=admin@opencti.io
@@ -83,7 +83,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:2.1.0
+    image: opencti/worker:2.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=ChangeMe
