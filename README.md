@@ -69,16 +69,19 @@ volumes:
     driver_opts:
       o: bind
       type: none
+      device: /srv/docker/grakndata
   esdata:
     driver: local
     driver_opts:
       o: bind
       type: none
+      device: /srv/docker/esdata
   s3data:
     driver: local
     driver_opts:
       o: bind
-      type: none      
+      type: none
+      device: /srv/docker/s3data
 ```
 
 ## Memory configuration
