@@ -1,7 +1,7 @@
 version: '3'
 services:
   grakn:
-    image: graknlabs/grakn:1.6.1
+    image: graknlabs/grakn:1.6.2
     ports:
       - 48555:48555 
     volumes:
@@ -11,7 +11,7 @@ services:
     image: redis:5.0.5
     restart: always
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -105,6 +105,18 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+  connector-export-file-csv:
+    image: opencti/connector-export-file-csv:rolling
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=29a29074-20ae-4159-a191-88d4d54b69b5
+      - CONNECTOR_ID=97c8a12d-703f-429d-9ab1-26ef1843f7f8
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileCsv
+      - CONNECTOR_SCOPE=application/csv
+      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_LOG_LEVEL=info
+    restart: always    
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:rolling
     environment:
