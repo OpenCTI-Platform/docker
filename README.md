@@ -1,3 +1,5 @@
+# OpenCTI Docker deployment
+
 OpenCTI could be deployed using the *docker-compose* command.
 
 ## Clone the repository
@@ -23,10 +25,10 @@ And change the variable `OPENCTI_TOKEN` (for the `worker` and all connectors) ac
 - OPENCTI_TOKEN=ChangeMe
 ```
 
-As OpenCTI has a dependency to ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
+As OpenCTI has a dependency to ElasticSearch and Grakn, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
 
 ```bash
-$ sysctl -w vm.max_map_count=262144 
+$ sysctl -w vm.max_map_count=1048575
 ```
 
 ## Run
@@ -58,7 +60,7 @@ By default OpenCTI use Websockets so dont forget to configure your proxy for thi
 
 ## Data persistence
 
-If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for both `Grakn` and `ElasticSearch` services in the `docker-compose.yml`.
+If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for `Grakn`, `ElasticSearch` and `MinIO` services in the `docker-compose.yml`.
 
 Here is an example of volumes configuration:
 
@@ -117,9 +119,9 @@ Redis has a very small footprint and only provides an option to limit the maximu
 
 You can find more information in the [Redis docker hub](https://hub.docker.com/r/bitnami/redis/).
 
-### Minio
+### MinIO
 
-Minio is a small process and does not require a high amount of memory. More information are available for Linux here on the [Kernel tuning guide](https://github.com/minio/minio/tree/master/docs/deployment/kernel-tuning).
+MinIO is a small process and does not require a high amount of memory. More information are available for Linux here on the [Kernel tuning guide](https://github.com/minio/minio/tree/master/docs/deployment/kernel-tuning).
 
 ### RabbitMQ
 
