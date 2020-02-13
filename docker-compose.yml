@@ -31,8 +31,8 @@ services:
     ports:
       - "9000:9000"
     environment:
-      MINIO_ACCESS_KEY: ChangeMeAccess
-      MINIO_SECRET_KEY: ChangeMeKey
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -42,16 +42,16 @@ services:
   rabbitmq:
     image: rabbitmq:3.7.17-management
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest    
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}    
     restart: always
   opencti:
     image: opencti/platform:latest
     environment:
       - APP__PORT=8080
-      - APP__ADMIN__EMAIL=admin@opencti.io
-      - APP__ADMIN__PASSWORD=ChangeMe
-      - APP__ADMIN__TOKEN=ChangeMe
+      - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
+      - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
+      - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
       - APP__LOGS_LEVEL=error
       - APP__LOGS=./logs
       - APP__REACTIVE=true
@@ -65,14 +65,15 @@ services:
       - MINIO__ENDPOINT=minio
       - MINIO__PORT=9000
       - MINIO__USE_SSL=false
-      - MINIO__ACCESS_KEY=ChangeMeAccess
-      - MINIO__SECRET_KEY=ChangeMeKey
+      - MINIO__ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO__SECRET_KEY=${MINIO_SECRET_KEY}
       - RABBITMQ__HOSTNAME=rabbitmq
       - RABBITMQ__PORT=5672
       - RABBITMQ__PORT_MANAGEMENT=15672
       - RABBITMQ__MANAGEMENT_SSL=false
-      - RABBITMQ__USERNAME=guest
-      - RABBITMQ__PASSWORD=guest
+      - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
     ports:
       - "8080:8080"
     depends_on:
@@ -86,7 +87,7 @@ services:
     image: opencti/worker:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - WORKER_LOG_LEVEL=info
     depends_on:
       - opencti
@@ -98,8 +99,8 @@ services:
     image: opencti/connector-export-file-stix:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe # Valid UUDv4
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -110,8 +111,8 @@ services:
     image: opencti/connector-export-file-csv:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe # Valid UUDv4
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=application/csv
@@ -122,20 +123,33 @@ services:
     image: opencti/connector-import-file-stix:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe # Valid UUDv4
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix2
       - CONNECTOR_SCOPE=application/json
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+  connector-import-file-pdf-observables:
+    image: opencti/connector-import-file-pdf-observables:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID} # Valid UUDv4
+      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
+      - CONNECTOR_NAME=ImportFilePdfObservables
+      - CONNECTOR_SCOPE=application/pdf
+      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_LOG_LEVEL=info
+      - PDF_OBSERVABLES_CREATE_INDICATOR=False
+    restart: always    
   connector-opencti:
     image: opencti/connector-opencti:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe # Valid UUDv4
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_OPENCTI_ID} # Valid UUDv4
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=OpenCTI
       - CONNECTOR_SCOPE=identity,sector,region,country,city
@@ -145,15 +159,13 @@ services:
       - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
       - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
       - CONFIG_INTERVAL=7 # Days
-    depends_on:
-      - opencti
     restart: always
   connector-mitre:
     image: opencti/connector-mitre:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=ChangeMe
-      - CONNECTOR_ID=ChangeMe # Valid UUDv4
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_MITRE_ID} # Valid UUDv4
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - CONNECTOR_NAME=MITRE ATT&CK
       - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report

@@ -31,22 +31,36 @@ As OpenCTI has a dependency to ElasticSearch and Grakn, you have to set the `vm.
 $ sysctl -w vm.max_map_count=1048575
 ```
 
+To make this parameter persistent, please update your file `/etc/sysctl.conf` and add the line:
+```bash
+$ vm.max_map_count=1048575
+```
+
 ## Run
 
 In order to have the best experience with Docker, we recommend to use the Docker stack feature. In this mode we will have the capacity to easily scale your deployment.
 
-### In Swarm or Kubernetes
-
 ```bash
-$ docker stack deploy -c docker-compose.yml opencti
+$ env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml opencti
 ```
 
-### In standard Docker
+> In some configuration, Grakn could fail to start with the following error: `Starting Storage.....FAILED!`
+> You can restart it by using the command `$ docker service update --force opencti_grakn`.
+
+You can also deploy with the standard Docker command:
+
 ```bash
 $ docker-compose --compatibility up
 ```
 
 You can now go to http://localhost:8080 and log in with the credentials configured in your environment variables.
+
+### Update the stack or delete the stack
+
+```bash
+$ docker service update --force service_name
+$ docker stack rm opencti
+```
 
 ### Behind a reverse proxy
 
