@@ -2,6 +2,8 @@
 
 OpenCTI could be deployed using the *docker-compose* command.
 
+> For production deployment, we advise you to deploy `Grakn` and `ElasticSearch` manually in a dedicated environment and then to start the other components using `Docker`.
+
 ## Clone the repository
 
 ```bash
@@ -12,7 +14,9 @@ $ cd docker
 
 ### Configure the environment
 
-Before running the docker-compose command, please change the admin token (this token must be a [valid UUID](https://www.uuidgenerator.net/)) and password of the application in the file `docker-compose.yml`:
+Before running the `docker-compose` command, don't forget to change the admin token (this token must be a [valid UUID](https://www.uuidgenerator.net/)) and the password in the file `.env`.  There is a file `.env.example` with a preset of variables for a demonstration purpose only.
+
+If you cannot or don't want to use the `.env`, please edit the file `docker-compose.yml` with:
 
 ```yaml
 - APP__ADMIN__PASSWORD=ChangeMe
