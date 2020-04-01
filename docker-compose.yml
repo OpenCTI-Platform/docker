@@ -46,7 +46,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}    
     restart: always
   opencti:
-    image: opencti/platform:3.0.3
+    image: opencti/platform:3.1.0
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
@@ -84,7 +84,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:3.0.3
+    image: opencti/worker:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -96,7 +96,7 @@ services:
       replicas: 3
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:3.0.3
+    image: opencti/connector-export-file-stix:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -108,7 +108,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:3.0.3
+    image: opencti/connector-export-file-csv:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -120,7 +120,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always    
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:3.0.3
+    image: opencti/connector-import-file-stix:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -132,7 +132,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:3.0.3
+    image: opencti/connector-import-file-pdf-observables:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -145,7 +145,7 @@ services:
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
     restart: always    
   connector-opencti:
-    image: opencti/connector-opencti:3.0.3
+    image: opencti/connector-opencti:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -161,7 +161,7 @@ services:
       - CONFIG_INTERVAL=7 # Days
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:3.0.3
+    image: opencti/connector-mitre:3.1.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
