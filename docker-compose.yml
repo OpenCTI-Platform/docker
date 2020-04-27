@@ -47,7 +47,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}    
     restart: always
   opencti:
-    image: opencti/platform:3.1.0
+    image: opencti/platform:3.1.1
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
@@ -85,7 +85,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:3.1.0
+    image: opencti/worker:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -97,11 +97,11 @@ services:
       replicas: 3
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:3.1.0
+    image: opencti/connector-export-file-stix:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -109,11 +109,11 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:3.1.0
+    image: opencti/connector-export-file-csv:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=application/csv
@@ -121,11 +121,11 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always    
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:3.1.0
+    image: opencti/connector-import-file-stix:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -133,11 +133,11 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:3.1.0
+    image: opencti/connector-import-file-pdf-observables:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID} # Valid UUDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFilePdfObservables
       - CONNECTOR_SCOPE=application/pdf
@@ -146,7 +146,7 @@ services:
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
     restart: always    
   connector-opencti:
-    image: opencti/connector-opencti:3.1.0
+    image: opencti/connector-opencti:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -162,7 +162,7 @@ services:
       - CONFIG_INTERVAL=7 # Days
     restart: always
   connector-mitre:
-    image: opencti/connector-mitre:3.1.0
+    image: opencti/connector-mitre:3.1.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
