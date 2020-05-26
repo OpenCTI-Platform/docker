@@ -1,8 +1,8 @@
 version: '3'
 services:
   opencti-dev-grakn:
-    container_name: opencti-dev-grakn
-    image: graknlabs/grakn:1.6.2
+    container_name: opencti-dev-grakn 
+    image: graknlabs/grakn:1.7.1
     restart: always
     ports:
       - 48555:48555
