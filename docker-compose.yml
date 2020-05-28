@@ -3,7 +3,7 @@ services:
   grakn:
     image: graknlabs/grakn:1.7.1
     ports:
-      - 48555:48555 
+      - 48555:48555
     volumes:
       - grakndata:/grakn-core-all-linux/server/db
     restart: always
@@ -44,7 +44,7 @@ services:
     image: rabbitmq:3.8-management
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}    
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     restart: always
   opencti:
     image: opencti/platform:3.3.0
@@ -119,7 +119,7 @@ services:
       - CONNECTOR_SCOPE=application/csv
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
-    restart: always    
+    restart: always
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:3.3.0
     environment:
@@ -144,7 +144,7 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
-    restart: always    
+    restart: always
   connector-opencti:
     image: opencti/connector-opencti:3.3.0
     environment:
