@@ -157,38 +157,6 @@ services:
       - CONNECTOR_LOG_LEVEL=info
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
     restart: always
-  connector-opencti:
-    image: opencti/connector-opencti:rolling
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_OPENCTI_ID} # Valid UUDv4
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=OpenCTI
-      - CONNECTOR_SCOPE=identity,sector,region,country,city
-      - CONNECTOR_CONFIDENCE_LEVEL=5
-      - CONNECTOR_UPDATE_EXISTING_DATA=true
-      - CONNECTOR_LOG_LEVEL=info
-      - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
-      - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
-      - CONFIG_INTERVAL=7 # Days
-    restart: always
-  connector-mitre:
-    image: opencti/connector-mitre:rolling
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_MITRE_ID} # Valid UUDv4
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=MITRE ATT&CK
-      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report
-      - CONNECTOR_CONFIDENCE_LEVEL=3
-      - CONNECTOR_UPDATE_EXISTING_DATA=true
-      - CONNECTOR_LOG_LEVEL=info
-      - MITRE_ENTERPRISE_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
-      - MITRE_PRE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/pre-attack/pre-attack.json
-      - MITRE_INTERVAL=7 # Days
-    restart: always
 volumes:
   grakndata:
   esdata:
