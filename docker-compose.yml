@@ -44,7 +44,7 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:rolling
+    image: opencti/platform:4.0.0
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
@@ -79,7 +79,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:rolling
+    image: opencti/worker:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -91,7 +91,7 @@ services:
       replicas: 3
     restart: always
   connector-history:
-    image: opencti/connector-history:rolling
+    image: opencti/connector-history:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -103,7 +103,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:rolling
+    image: opencti/connector-export-file-stix:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -115,7 +115,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:rolling
+    image: opencti/connector-export-file-csv:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -127,7 +127,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:rolling
+    image: opencti/connector-import-file-stix:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -139,7 +139,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:rolling
+    image: opencti/connector-import-file-pdf-observables:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
