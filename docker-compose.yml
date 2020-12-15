@@ -1,17 +1,12 @@
 version: '3'
 services:
-  grakn:
-    image: graknlabs/grakn:1.7.2
-    ports:
-      - 48555:48555
-    volumes:
-      - grakndata:/grakn-core-all-linux/server/db
-    restart: always
   redis:
-    image: redis:6.0.5
+    image: redis:6.0.9
     restart: always
+    volumes:
+      - s3data:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -25,7 +20,7 @@ services:
         soft: 65536
         hard: 65536
   minio:
-    image: minio/minio:RELEASE.2020-05-16T01-33-21Z
+    image: minio/minio:RELEASE.2020-12-12T08-39-07Z
     volumes:
       - s3data:/data
     ports:
@@ -45,9 +40,11 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:3.3.2
+    image: opencti/platform:4.0.0
     environment:
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
@@ -57,9 +54,6 @@ services:
       - APP__LOGS=./logs
       - APP__REACTIVE=true
       - APP__COOKIE_SECURE=false
-      - GRAKN__HOSTNAME=grakn
-      - GRAKN__PORT=48555
-      - GRAKN__TIMEOUT=30000
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__URL=http://elasticsearch:9200
@@ -78,14 +72,13 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - grakn
       - redis
       - elasticsearch
       - minio
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:3.3.2
+    image: opencti/worker:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -96,8 +89,20 @@ services:
       mode: replicated
       replicas: 3
     restart: always
+  connector-history:
+    image: opencti/connector-history:4.0.0
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_HISTORY_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_NAME=History
+      - CONNECTOR_SCOPE=history
+      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_LOG_LEVEL=info
+    restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:3.3.2
+    image: opencti/connector-export-file-stix:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -109,19 +114,19 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:3.3.2
+    image: opencti/connector-export-file-csv:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
-      - CONNECTOR_SCOPE=application/csv
+      - CONNECTOR_SCOPE=text/csv
       - CONNECTOR_CONFIDENCE_LEVEL=3
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:3.3.2
+    image: opencti/connector-import-file-stix:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -133,7 +138,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:3.3.2
+    image: opencti/connector-import-file-pdf-observables:4.0.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -145,39 +150,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
     restart: always
-  connector-opencti:
-    image: opencti/connector-opencti:3.3.2
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_OPENCTI_ID} # Valid UUDv4
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=OpenCTI
-      - CONNECTOR_SCOPE=identity,sector,region,country,city
-      - CONNECTOR_CONFIDENCE_LEVEL=5
-      - CONNECTOR_UPDATE_EXISTING_DATA=true
-      - CONNECTOR_LOG_LEVEL=info
-      - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
-      - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
-      - CONFIG_INTERVAL=7 # Days
-    restart: always
-  connector-mitre:
-    image: opencti/connector-mitre:3.3.2
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_MITRE_ID} # Valid UUDv4
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=MITRE ATT&CK
-      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report
-      - CONNECTOR_CONFIDENCE_LEVEL=3
-      - CONNECTOR_UPDATE_EXISTING_DATA=true
-      - CONNECTOR_LOG_LEVEL=info
-      - MITRE_ENTERPRISE_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
-      - MITRE_PRE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/pre-attack/pre-attack.json
-      - MITRE_INTERVAL=7 # Days
-    restart: always
 volumes:
-  grakndata:
   esdata:
   s3data:
+  redisdata:
+  amqpdata:

@@ -2,7 +2,7 @@
 
 OpenCTI could be deployed using the *docker-compose* command.
 
-> For production deployment, we advise you to deploy `Grakn` and `ElasticSearch` manually in a dedicated environment and then to start the other components using `Docker`.
+> For production deployment, we advise you to deploy `ElasticSearch` manually in a dedicated environment and then to start the other components using `Docker`.
 
 ## Clone the repository
 
@@ -29,7 +29,7 @@ And change the variable `OPENCTI_TOKEN` (for the `worker` and all connectors) ac
 - OPENCTI_TOKEN=ChangeMe
 ```
 
-As OpenCTI has a dependency to ElasticSearch and Grakn, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
+As OpenCTI has a dependency to ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
 
 ```bash
 $ sysctl -w vm.max_map_count=1048575
@@ -47,9 +47,6 @@ In order to have the best experience with Docker, we recommend to use the Docker
 ```bash
 $ env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml opencti
 ```
-
-> In some configuration, Grakn could fail to start with the following error: `Starting Storage.....FAILED!`
-> You can restart it by using the command `$ docker service update --force opencti_grakn`.
 
 You can also deploy with the standard Docker command:
 
@@ -78,17 +75,12 @@ By default OpenCTI use Websockets so dont forget to configure your proxy for thi
 
 ## Data persistence
 
-If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for `Grakn`, `ElasticSearch` and `MinIO` services in the `docker-compose.yml`.
+If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for `ElasticSearch`, `MinIO`, `Redis` and `RabbitMQ` services in the `docker-compose.yml`.
 
 Here is an example of volumes configuration:
 
 ```yaml
 volumes:
-  grakndata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
   esdata:
     driver: local
     driver_opts:
@@ -98,7 +90,17 @@ volumes:
     driver: local
     driver_opts:
       o: bind
-      type: none      
+      type: none   
+  redisdata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+  amqpdata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none               
 ```
 
 ## Memory configuration
@@ -114,14 +116,6 @@ OpenCTI platform is based on a NodeJS runtime, with a memory limit of **512MB by
 OpenCTI workers and connectors are Python processes. If you want to limit the memory of the process we recommend to directly use Docker to do that. You can find more information in the [official Docker documentation](https://docs.docker.com/compose/compose-file/). 
 
 > If you do not use Docker stack, think about `--compatibility` option.
-
-### Grakn 
-
-Grakn is a JAVA process that rely on Cassandra (also a JAVA process). In order to setup the JAVA memory allocation, you can use the environment variable `SERVER_JAVAOPTS` and `STORAGE_JAVAOPTS`. 
-
-> The current recommendation is `-Xms4G` for both options.
-
-You can find more information in the [official Grakn documentation](https://dev.grakn.ai/docs).
 
 ### ElasticSearch
 
