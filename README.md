@@ -1,8 +1,8 @@
 # OpenCTI Docker deployment
 
-OpenCTI could be deployed using the *docker-compose* command.
+OpenCTI can be deployed using the *docker-compose* command.
 
-> For production deployment, we advise you to deploy `ElasticSearch` manually in a dedicated environment and then to start the other components using `Docker`.
+For production deployment, we advise you to deploy ElasticSearch manually in a dedicated environment and then to start the other components using Docker.
 
 ## Pre-requisites
 
@@ -16,7 +16,7 @@ $ sudo apt-get install docker-compose
 
 ```bash
 $ mkdir /path/to/your/app && cd /path/to/your/app
-$ git clone https://github.com/OpenCTI-Platform/docker.git
+$ git clone <https://github.com/OpenCTI-Platform/docker.git>
 $ cd docker
 ```
 
@@ -28,8 +28,9 @@ Before running the `docker-compose` command, the `docker-compose.yml` file must 
 - Directly set the parameters in the `docker-compose.yml`.
 
  Whether you are using one method or the other, here are the mandatory parameters to fill:
+
 ```bash
-OPENCTI_ADMIN_EMAIL=admin@opencti.io # Valid email address
+[OPENCTI_ADMIN_EMAIL=admin@opencti.io](mailto:OPENCTI_ADMIN_EMAIL=admin@opencti.io) # Valid email address
 OPENCTI_ADMIN_PASSWORD=ChangeMe # String
 OPENCTI_ADMIN_TOKEN=ChangeMe # Valid UUIDv4
 MINIO_ACCESS_KEY=ChangeMeAccess # String
@@ -44,11 +45,14 @@ CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID=ChangeMe # Valid UUIDv4
 ```
 
 As OpenCTI has a dependency on ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
+
 ```bash
-$ sysctl -w vm.max_map_count=1048575
+$ sudo sysctl -w vm.max_map_count=1048575
+
 ```
 
-To make this parameter persistent, please update your file `/etc/sysctl.conf` and add the line:
+To make this parameter persistent, please update your `/etc/sysctl.conf` file and add the following line at the end:
+
 ```bash
 $ vm.max_map_count=1048575
 ```
@@ -58,6 +62,14 @@ $ vm.max_map_count=1048575
 ### Using single node Docker
 
 You can deploy without using Docker swarm, with a the `docker-compose` command. After changing your `.env` file, just type:
+
+```bash
+$ sudo docker-compose up -d
+```
+
+### Using Docker swarm
+
+In order to have the best experience with Docker, we recommend using the Docker stack feature. In this mode you will have the capacity to easily scale your deployment. If your virtual machine is not a part of a Swarm cluster, please use:
 
 ```bash
 $ sudo docker swarm init
