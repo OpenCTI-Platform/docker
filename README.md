@@ -4,6 +4,14 @@ OpenCTI could be deployed using the *docker-compose* command.
 
 > For production deployment, we advise you to deploy `ElasticSearch` manually in a dedicated environment and then to start the other components using `Docker`.
 
+## Pre-requisites
+
+To install OpenCTI using Docker, you will need the docker-compose command, you can install it using:
+
+```bash
+$ sudo apt-get install docker-compose
+```
+
 ## Clone the repository
 
 ```bash
@@ -12,25 +20,30 @@ $ git clone https://github.com/OpenCTI-Platform/docker.git
 $ cd docker
 ```
 
-### Configure the environment
+## Configure the environment
 
-Before running the `docker-compose` command, don't forget to change the admin token (this token must be a [valid UUID](https://www.uuidgenerator.net/)) and the password in the file `.env`.  There is a file `.env.example` with a preset of variables for a demonstration purpose only.
+Before running the `docker-compose` command, the `docker-compose.yml` file must be configured.  Two ways to do that:
 
-If you cannot or don't want to use the `.env`, please edit the file `docker-compose.yml` with:
+- Use environment variables as it is proposed and you have an exemple in the `.env.sample` file (ie. `APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}`).
+- Directly set the parameters in the `docker-compose.yml`.
 
-```yaml
-- APP__ADMIN__PASSWORD=ChangeMe
-- APP__ADMIN__TOKEN=ChangeMe
+ Whether you are using one method or the other, here are the mandatory parameters to fill:
+```bash
+OPENCTI_ADMIN_EMAIL=admin@opencti.io # Valid email address
+OPENCTI_ADMIN_PASSWORD=ChangeMe # String
+OPENCTI_ADMIN_TOKEN=ChangeMe # Valid UUIDv4
+MINIO_ACCESS_KEY=ChangeMeAccess # String
+MINIO_SECRET_KEY=ChangeMeKey # String
+RABBITMQ_DEFAULT_USER=guest # String
+RABBITMQ_DEFAULT_PASS=guest # String
+CONNECTOR_HISTORY_ID=ChangeMe # Valid UUIDv4
+CONNECTOR_EXPORT_FILE_STIX_ID=ChangeMe # Valid UUIDv4
+CONNECTOR_EXPORT_FILE_CSV_ID=ChangeMe # Valid UUIDv4
+CONNECTOR_IMPORT_FILE_STIX_ID=ChangeMe # Valid UUIDv4
+CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID=ChangeMe # Valid UUIDv4
 ```
 
-And change the variable `OPENCTI_TOKEN` (for the `worker` and all connectors) according to the value of `APP__ADMIN__TOKEN`
-
-```yaml
-- OPENCTI_TOKEN=ChangeMe
-```
-
-As OpenCTI has a dependency to ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
-
+As OpenCTI has a dependency on ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
 ```bash
 $ sysctl -w vm.max_map_count=1048575
 ```
@@ -42,44 +55,71 @@ $ vm.max_map_count=1048575
 
 ## Run
 
-In order to have the best experience with Docker, we recommend to use the Docker stack feature. In this mode we will have the capacity to easily scale your deployment.
+### Using single node Docker
+
+You can deploy without using Docker swarm, with a the `docker-compose` command. After changing your `.env` file, just type:
 
 ```bash
-$ env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml opencti
+$ sudo docker swarm init
 ```
 
-You can also deploy with the standard Docker command:
+Then, you have to put your environment variables in the `/etc/environment` and then:
 
 ```bash
-$ docker-compose --compatibility up
+$ sudo source /etc/environment
+$ sudo docker stack deploy --compose-file docker-compose.yml opencti
 ```
 
-You can now go to http://localhost:8080 and log in with the credentials configured in your environment variables.
+You can now go to [http://localhost:8080](http://localhost:8080/) and log in with the credentials configured in your environment variables.
 
-### Update the stack or delete the stack
+## Update
+
+### Using single node Docker
 
 ```bash
-$ docker service update --force service_name
-$ docker stack rm opencti
+$ sudo docker-compose stop
+$ sudo docker-compose pull
+$ sudo docker-compose up -d
 ```
 
-### Behind a reverse proxy
+### Using Docker swarm
+
+For each of services, you have to run the following command:
+
+```bash
+$ sudo docker service update --force service_name
+```
+
+## Deploy behind a reverse proxy
 
 If you want to use OpenCTI behind a reverse proxy with a context path, like `https://myproxy.com/opencti`, please change the base_path configuration.
 
 ```yaml
 - APP__BASE_PATH=/opencti
 ```
-By default OpenCTI use Websockets so dont forget to configure your proxy for this usage.
 
+By default OpenCTI use websockets so don't forget to configure your proxy for this usage, an example with `Nginx`:
+
+```bash
+location / {
+    proxy_cache               off;
+    proxy_buffering           off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    chunked_transfer_encoding off;
+    proxy_pass http:/YOUR_UPSTREA_BACKEND;
+  }
+```
 
 ## Data persistence
 
-If you wish your OpenCTI data to be persistent in production, you should be aware of the  `volumes` section for `ElasticSearch`, `MinIO`, `Redis` and `RabbitMQ` services in the `docker-compose.yml`.
+If you wish your OpenCTI data to be persistent while in production, you should be aware of the `volumes` section for `ElasticSearch`, `MinIO`, `Redis` and `RabbitMQ` services in the `docker-compose.yml`.
 
 Here is an example of volumes configuration:
 
-```yaml
+```
 volumes:
   esdata:
     driver: local
@@ -90,7 +130,7 @@ volumes:
     driver: local
     driver_opts:
       o: bind
-      type: none   
+      type: none      
   redisdata:
     driver: local
     driver_opts:
@@ -100,7 +140,7 @@ volumes:
     driver: local
     driver_opts:
       o: bind
-      type: none               
+      type: none
 ```
 
 ## Memory configuration
@@ -113,21 +153,21 @@ OpenCTI platform is based on a NodeJS runtime, with a memory limit of **512MB by
 
 ### OpenCTI - Workers and connectors
 
-OpenCTI workers and connectors are Python processes. If you want to limit the memory of the process we recommend to directly use Docker to do that. You can find more information in the [official Docker documentation](https://docs.docker.com/compose/compose-file/). 
+OpenCTI workers and connectors are Python processes. If you want to limit the memory of the process, we recommend to directly use Docker to do that. You can find more information in the [official Docker documentation](https://docs.docker.com/compose/compose-file/).
 
-> If you do not use Docker stack, think about `--compatibility` option.
+If you do not use Docker stack, think about --compatibility option.
 
 ### ElasticSearch
 
-ElasticSearch is also a JAVA process. In order to setup the JAVA memory allocation, you can use the environment variable `ES_JAVA_OPTS`. 
+ElasticSearch is also a JAVA process. In order to setup the JAVA memory allocation, you can use the environment variable `ES_JAVA_OPTS`.
 
-> The minimal recommended option today is `-Xms512M -Xmx512M`.
+The minimal recommended option today is -Xms8G -Xmx8G.
 
 You can find more information in the [official ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html).
 
 ### Redis
 
-Redis has a very small footprint and only provides an option to limit the maximum amount of memory that can be used by the process. You can use the option `--maxmemory` to limit the usage. 
+Redis has a very small footprint and only provides an option to limit the maximum amount of memory that can be used by the process. You can use the option `--maxmemory` to limit the usage.
 
 You can find more information in the [Redis docker hub](https://hub.docker.com/r/bitnami/redis/).
 
@@ -137,4 +177,4 @@ MinIO is a small process and does not require a high amount of memory. More info
 
 ### RabbitMQ
 
-The RabbitMQ memory configuration can be find in the [RabbitMQ official documentation](https://www.rabbitmq.com/memory.html). Basically RabbitMQ will consumed memory until a specific threshold. So it should be configure along with the Docker memory limitation.
+The RabbitMQ memory configuration can be find in the [RabbitMQ official documentation](https://www.rabbitmq.com/memory.html). RabbitMQ will consumed memory until a specific threshold, therefore it should be configure along with the Docker memory limitation.
