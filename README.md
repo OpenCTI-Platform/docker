@@ -30,7 +30,7 @@ Before running the `docker-compose` command, the `docker-compose.yml` file must 
  Whether you are using one method or the other, here are the mandatory parameters to fill:
 
 ```bash
-[OPENCTI_ADMIN_EMAIL=admin@opencti.io](mailto:OPENCTI_ADMIN_EMAIL=admin@opencti.io) # Valid email address
+OPENCTI_ADMIN_EMAIL=admin@opencti.io # Valid email address
 OPENCTI_ADMIN_PASSWORD=ChangeMe # String
 OPENCTI_ADMIN_TOKEN=ChangeMe # Valid UUIDv4
 MINIO_ACCESS_KEY=ChangeMeAccess # String
