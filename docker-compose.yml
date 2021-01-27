@@ -46,7 +46,7 @@ services:
   opencti:
     image: opencti/platform:4.0.7
     environment:
-      - NODE_OPTIONS=--max_old_space_size=8096
+      - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}

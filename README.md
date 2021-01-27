@@ -16,7 +16,7 @@ $ sudo apt-get install docker-compose
 
 ```bash
 $ mkdir /path/to/your/app && cd /path/to/your/app
-$ git clone <https://github.com/OpenCTI-Platform/docker.git>
+$ git clone https://github.com/OpenCTI-Platform/docker.git
 $ cd docker
 ```
 
