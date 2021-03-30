@@ -54,7 +54,6 @@ services:
       - APP__LOGS_LEVEL=error
       - APP__LOGS=./logs
       - APP__REACTIVE=true
-      - APP__COOKIE_SECURE=false
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__URL=http://elasticsearch:9200
