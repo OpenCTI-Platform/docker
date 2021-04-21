@@ -1,7 +1,7 @@
 version: '3'
 services:
   redis:
-    image: redis:6.2.1
+    image: redis:6.2.2
     restart: always
     volumes:
       - redisdata:/data
@@ -44,7 +44,7 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:4.4.0
+    image: opencti/platform:4.4.1
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -76,7 +76,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:4.4.0
+    image: opencti/worker:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -88,7 +88,7 @@ services:
       replicas: 3
     restart: always
   connector-history:
-    image: opencti/connector-history:4.4.0
+    image: opencti/connector-history:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -96,11 +96,11 @@ services:
       - CONNECTOR_TYPE=STREAM
       - CONNECTOR_NAME=History
       - CONNECTOR_SCOPE=history
-      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:4.4.0
+    image: opencti/connector-export-file-stix:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -108,11 +108,11 @@ services:
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
-      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:4.4.0
+    image: opencti/connector-export-file-csv:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -120,11 +120,11 @@ services:
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=text/csv
-      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:4.4.0
+    image: opencti/connector-import-file-stix:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -133,11 +133,11 @@ services:
       - CONNECTOR_NAME=ImportFileStix
       - CONNECTOR_SCOPE=application/json,text/xml
       - CONNECTOR_AUTO=false # Enable/disable auto-import of file
-      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:4.4.0
+    image: opencti/connector-import-file-pdf-observables:4.4.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -146,7 +146,7 @@ services:
       - CONNECTOR_NAME=ImportFilePdfObservables
       - CONNECTOR_SCOPE=application/pdf
       - CONNECTOR_AUTO=false # Enable/disable auto-import of file
-      - CONNECTOR_CONFIDENCE_LEVEL=3
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
       - PDF_OBSERVABLES_CREATE_INDICATOR=False
     restart: always
