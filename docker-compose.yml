@@ -11,6 +11,7 @@ services:
       - esdata:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
+      - xpack.ml.enabled=false
     restart: always
     ulimits:
       memlock:
