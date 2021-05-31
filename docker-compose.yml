@@ -45,7 +45,7 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:4.5.3
+    image: opencti/platform:4.5.4
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -77,7 +77,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:4.5.3
+    image: opencti/worker:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -89,7 +89,7 @@ services:
       replicas: 3
     restart: always
   connector-history:
-    image: opencti/connector-history:4.5.3
+    image: opencti/connector-history:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -101,7 +101,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:4.5.3
+    image: opencti/connector-export-file-stix:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -113,7 +113,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:4.5.3
+    image: opencti/connector-export-file-csv:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -125,7 +125,7 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:4.5.3
+    image: opencti/connector-import-file-stix:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -137,20 +137,20 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
-  connector-import-file-pdf-observables:
-    image: opencti/connector-import-file-pdf-observables:4.5.3
+  connector-import-report:
+    image: opencti/connector-import-report:4.5.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_REPORT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFilePdfObservables
-      - CONNECTOR_SCOPE=application/pdf
+      - CONNECTOR_SCOPE=application/pdf,text/plain
       - CONNECTOR_AUTO=false # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=true # Only extract data related to an entity (a report, a threat actor, etc.)
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
-      - PDF_OBSERVABLES_CREATE_INDICATOR=False
+      - IMPORT_REPORT_CREATE_INDICATOR=false
     restart: always
 volumes:
   esdata:
