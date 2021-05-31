@@ -144,7 +144,7 @@ services:
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_IMPORT_REPORT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
-      - CONNECTOR_NAME=ImportFilePdfObservables
+      - CONNECTOR_NAME=ImportReport
       - CONNECTOR_SCOPE=application/pdf,text/plain
       - CONNECTOR_AUTO=false # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=true # Only extract data related to an entity (a report, a threat actor, etc.)
