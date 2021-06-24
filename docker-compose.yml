@@ -52,7 +52,7 @@ services:
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - APP__APP_LOGS__LOGS_LEVEL=error
+      - APP__LOGS_LEVEL=error
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__URL=http://elasticsearch:9200
