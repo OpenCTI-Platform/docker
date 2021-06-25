@@ -25,7 +25,7 @@ if dotenv_file == '':
 dotenv.load_dotenv(dotenv_file)
 
 for key, val in uid_dict.items():
-    dotenv.set_key(dotenv_file, key, val)
+    dotenv.set_key(dotenv_file, key, val, quote_mode='never')
 
 custom = {
     'OPENCTI_ADMIN_EMAIL': 'admin@opencti.io',
@@ -38,5 +38,4 @@ custom = {
 }
 
 for key, val in custom.items():
-    dotenv.set_key(dotenv_file, key, val)
-
+    dotenv.set_key(dotenv_file, key, val, quote_mode='never')
