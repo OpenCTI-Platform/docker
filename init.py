@@ -1,6 +1,13 @@
+import random
+import string
 import uuid
 import yaml
 import dotenv
+
+
+def generate_random_text(length: int = 15) -> str:
+    return ''.join(random.choice(string.ascii_letters) for i in range(length))
+
 
 with open("docker-compose.yml", 'r') as ymlfile:
     docker_config = yaml.load(ymlfile, Loader=yaml.BaseLoader)
@@ -25,17 +32,18 @@ if dotenv_file == '':
 dotenv.load_dotenv(dotenv_file)
 
 for key, val in uid_dict.items():
-    dotenv.set_key(dotenv_file, key, val, quote_mode='never')
+    if dotenv.get_key(dotenv_file, key) is None:
+        dotenv.set_key(dotenv_file, key, val, quote_mode='never')
 
 custom = {
     'OPENCTI_ADMIN_EMAIL': 'admin@opencti.io',
-    'OPENCTI_ADMIN_PASSWORD': 'ChangeMe',
-    'OPENCTI_ADMIN_TOKEN': 'ChangeMe',
-    'MINIO_ACCESS_KEY': 'ChangeMeAccess',
-    'MINIO_SECRET_KEY': 'ChangeMeKey',
-    'RABBITMQ_DEFAULT_USER': 'guest',
-    'RABBITMQ_DEFAULT_PASS': 'guest'
+    'OPENCTI_ADMIN_PASSWORD': generate_random_text(),
+    'MINIO_ACCESS_KEY': generate_random_text(),
+    'MINIO_SECRET_KEY': generate_random_text(),
+    'RABBITMQ_DEFAULT_USER': generate_random_text(),
+    'RABBITMQ_DEFAULT_PASS': generate_random_text()
 }
 
 for key, val in custom.items():
-    dotenv.set_key(dotenv_file, key, val, quote_mode='never')
+    if dotenv.get_key(dotenv_file, key) is None:
+        dotenv.set_key(dotenv_file, key, val, quote_mode='never')
