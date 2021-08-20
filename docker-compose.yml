@@ -100,6 +100,8 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+    depends_on:
+      - opencti
   connector-export-file-stix:
     image: opencti/connector-export-file-stix:4.5.5
     environment:
@@ -112,6 +114,8 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+    depends_on:
+      - opencti
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:4.5.5
     environment:
@@ -124,6 +128,8 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+    depends_on:
+      - opencti
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:4.5.5
     environment:
@@ -137,6 +143,8 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
     restart: always
+    depends_on:
+      - opencti
   connector-import-report:
     image: opencti/connector-import-report:4.5.5
     environment:
@@ -152,6 +160,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
       - IMPORT_REPORT_CREATE_INDICATOR=false
     restart: always
+    depends_on:
+      - opencti
 volumes:
   esdata:
   s3data:
