@@ -33,7 +33,7 @@ services:
       - 5601:5601
   opencti-dev-minio:
     container_name: opencti-dev-minio
-    image: minio/minio:RELEASE.2021-06-14T01-29-23Z
+    image: minio/minio:RELEASE.2021-08-25T00-41-18Z
     ports:
       - "9000:9000"
     environment:
