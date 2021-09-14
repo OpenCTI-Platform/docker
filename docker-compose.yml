@@ -6,7 +6,7 @@ services:
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -67,6 +67,8 @@ services:
       - RABBITMQ__MANAGEMENT_SSL=false
       - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - SMTP__HOSTNAME=localhost
+      - SMTP__PORT=25
       - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
     ports:
       - "8080:8080"
