@@ -33,8 +33,8 @@ Before running the `docker-compose` command, the `docker-compose.yml` file must 
 OPENCTI_ADMIN_EMAIL=admin@opencti.io # Valid email address
 OPENCTI_ADMIN_PASSWORD=ChangeMe # String
 OPENCTI_ADMIN_TOKEN=ChangeMe # Valid UUIDv4
-MINIO_ACCESS_KEY=ChangeMeAccess # String
-MINIO_SECRET_KEY=ChangeMeKey # String
+MINIO_ROOT_USER=ChangeMeAccess # String
+MINIO_ROOT_PASSWORD=ChangeMeKey # String
 RABBITMQ_DEFAULT_USER=guest # String
 RABBITMQ_DEFAULT_PASS=guest # String
 CONNECTOR_HISTORY_ID=ChangeMe # Valid UUIDv4
