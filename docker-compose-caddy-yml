@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  caddy:
+    image: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+networks:
+  default:
+    external: true
+    name: <your OpenCTI network name>
+    
+volumes:
+  caddy_data:
+  caddy_config:
