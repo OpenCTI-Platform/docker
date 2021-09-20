@@ -1,0 +1,3 @@
+cti.domain.com {
+	reverse_proxy http://opencti:8080
+}
