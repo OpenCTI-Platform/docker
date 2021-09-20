@@ -15,7 +15,7 @@ Its easy to setup reverse proxy with FREE SSL using Caddy with very minimal effo
 
 
 ```bash
-# Create a DNS A record pointing your domain to the public IP address
+# Create a DNS A/AAAA record pointing your domain to the public IP address
 cti.domain.com  A  <public-IP-address-for-OpenCTI-instance>
 ```
 Make sure to wait for the DNS record to complete propagation (depending on TTL). Otherwise automatic SSL creation would not work.  
@@ -61,5 +61,8 @@ Now just get it running and Caddy will request and get SSL certificate automagic
 > docker run -f docker-compose-caddy.yml up -d
 
 ### Resources
+How Caddy automatic SSL works  
+https://caddyserver.com/docs/automatic-https
+
 Using Caddy with Load Balancer  
 https://caddy.community/t/load-balancing-caddy/10467
