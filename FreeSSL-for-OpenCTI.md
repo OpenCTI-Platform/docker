@@ -30,6 +30,7 @@ cti.domain.com {
 ```
 
 #### docker-compose-caddy.yml file content below
+Port 80 mapping is not necessary but it helps in automatic redirection if clients try the HTTP url.
 ```yaml
 version: "3.7"
 services:
@@ -54,8 +55,7 @@ volumes:
   caddy_config:
 ```
 
-Since you are running Caddy in docker, you need to make it part of OpenCTI network and don't need to expose OpenCTI 8080 port outside.
-This means you can remove port setting in OpenCTI docker-compose file.
+Since you are running Caddy in docker, you need to make it part of OpenCTI network. Reverse proxy takes care of everything else. This also means you don't need to expose OpenCTI 8080 port outside the container. So you can remove -port setting in OpenCTI docker-compose file.
 
 Now just get it running and Caddy will request and get SSL certificate automagically for your domain.  
 > docker run -f docker-compose-caddy.yml up -d
