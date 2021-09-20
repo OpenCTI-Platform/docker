@@ -58,7 +58,7 @@ volumes:
 Since you are running Caddy in docker, you need to make it part of OpenCTI network. Reverse proxy takes care of everything else. This also means you don't need to expose OpenCTI 8080 port outside the container. So you can remove -port setting in OpenCTI docker-compose file.
 
 Now just get it running and Caddy will request and get SSL certificate automagically for your domain.  
-> docker run -f docker-compose-caddy.yml up -d
+> docker-compose -f docker-compose-caddy.yml up -d
 
 ### Resources
 How Caddy automatic SSL works  
