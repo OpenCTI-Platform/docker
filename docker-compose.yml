@@ -137,7 +137,7 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileTxt
       - CONNECTOR_SCOPE=text/plain
