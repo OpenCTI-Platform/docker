@@ -50,7 +50,7 @@ There are two ways to do that:
 1. Use environment variables as it is proposed and you have an exemple in the `.env.sample` file (ie. `APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}`).
 1. Directly set the parameters in the `docker-compose.yml`.
 
-If setting within the environment, you can reference the methodology in the  [Environment setup on OpenCTI's Notion page](https://www.notion.so/Environment-setup-606996f36d904fcf8d434c6d0eae4a00#28b76731cae44cf0a59e70e4c84c795b
+If setting within the environment, you can reference the methodology in the  [Environment setup on OpenCTI's Notion page](https://luatix.notion.site/Environment-setup-606996f36d904fcf8d434c6d0eae4a00#28b76731cae44cf0a59e70e4c84c795b
 ) - located below for ease:
 
 ### 🐧 Linux:
@@ -160,7 +160,7 @@ To run the services required for local development run:
 $ sudo docker-compose up -f docker-compose.dev.yml -d
 ```
 
-To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://www.notion.so/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
+To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://luatix.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
 
 # Appendices
 
