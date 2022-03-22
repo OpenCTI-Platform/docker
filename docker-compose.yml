@@ -11,6 +11,8 @@ services:
       - esdata:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
+      # Use the below for a cluster of multiple nodes, and comment out the line above (single-node)
+      # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
     restart: always
     ulimits:
@@ -20,6 +22,51 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+  # If you wish to have multiple ES nodes for faster processing add them below. Two examples are provided.
+  # Please note the volumes at the bottom as well!
+
+  # Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu#:~:text=High%20CPU%20utilization%20in%20Amazon,CPU%20usage%20should%20be%20investigated.
+  # 5-10 nodes: m3.medium.elasticsearch
+  # 10-20 nodes: m4.large.elasticsearch
+  # 20-50 nodes: c4.xlarge.elasticsearch
+  # 50-100 nodes: c4.2xlarge.elasticsearch
+
+  # elasticsearch2:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+  #   container_name: elasticsearch2
+  #   environment:
+  #     - cluster.name=docker-cluster
+  #     - "discovery.zen.ping.unicast.hosts=elasticsearch"
+  #     # Optional parameters - values may vary depending on your setup
+  #     # - bootstrap.memory_lock=true
+  #     # - http.cors.enabled=true
+  #     # - http.cors.allow-origin=*
+  #     # - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - esdata2:/usr/share/elasticsearch/data
+
+  # elasticsearch3:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+  #   container_name: elasticsearch3
+  #   environment:
+  #     - cluster.name=docker-cluster
+  #     - "discovery.zen.ping.unicast.hosts=elasticsearch"
+  #     # Optional parameters - values may vary depending on your setup
+  #     # - bootstrap.memory_lock=true
+  #     # - http.cors.enabled=true
+  #     # - http.cors.allow-origin=*
+  #     # - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - esdata2:/usr/share/elasticsearch/data
+
   minio:
     image: minio/minio:RELEASE.2022-02-05T04-40-59Z
     volumes:
@@ -182,6 +229,9 @@ services:
       - opencti
 volumes:
   esdata:
+  esdata2:
+  esdata3:
   s3data:
   redisdata:
   amqpdata:
+
