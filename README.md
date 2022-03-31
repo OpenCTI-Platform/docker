@@ -59,7 +59,7 @@ $ vm.max_map_count=1048575
 
 ## Run
 
-### Using single node Docker
+### Using single node Docker with single ElasticSearch Node
 
 You can deploy without using Docker swarm, with a the `docker-compose` command. After changing your `.env` file, just type:
 
@@ -67,6 +67,33 @@ You can deploy without using Docker swarm, with a the `docker-compose` command. 
 $ sudo docker-compose up -d
 ```
 
+## Multiple ElasticSearch Nodes
+Update `docker-compose.yml` to use multiple nodes:
+```
+    environment:
+      - cluster.name=docker-cluster
+```
+
+```bash
+$ sudo docker-compose -f docker-compose.yml -f docker-compose-multiple-es-nodes.yml up -d
+```
+
+  > Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu:
+  - 5-10 nodes: m3.medium.elasticsearch
+  - 10-20 nodes: m4.large.elasticsearch
+  - 20-50 nodes: c4.xlarge.elasticsearch
+  - 50-100 nodes: c4.2xlarge.elasticsearch
+
+### Optional Elasticsearch Environment variables:
+```   
+    environment:
+      # Optional parameters - values may vary depending on your setup
+      - bootstrap.memory_lock=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+```
+      
 ### Using Docker swarm
 
 In order to have the best experience with Docker, we recommend using the Docker stack feature. In this mode you will have the capacity to easily scale your deployment. If your virtual machine is not a part of a Swarm cluster, please use:
