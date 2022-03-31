@@ -1,68 +1,133 @@
 # OpenCTI Docker deployment
 
-OpenCTI can be deployed using the *docker-compose* command.
+## Table of Contents
+1. [Pre-Requisites](#1-pre-requisites)
+2. [Clone the Repository](#2-clone-the-repository)
+3. [Configure the environment](#3-configure-the-environment)
+4. [Memory Management Settings](#4-memory-management-settings)
+5. [Run OpenCTI - Full-stack, including UI](#5-run-open-cti-full-stack-including-ui)
+6. [Run OpenCTI infrastructure with UI/GraphQL in development mode](#6-run-opencti-infrastructure-with-uigraphql-in-development-mode)
+
+Appendices:
+- [Appendix A: How to update your docker instances](#A-how-to-update-your-docker-instances)
+- [Appendix B: How to deploy behind a reverse proxy](#B-how-to-deploy-behind-a-reverse-proxy)
+- [Appendix C: How to persist data](#C-how-to-persist-data)
+- [Appendix D: Memory configuration: additional information](#D-memory-configuration-additional-information)
+
+
+## Introduction: 
+OpenCTI can be deployed using the `docker-compose` command.
 
 For production deployment, we advise you to deploy ElasticSearch manually in a dedicated environment and then to start the other components using Docker.
 
-## Pre-requisites
+## 1. Pre-requisites
 
-To install OpenCTI using Docker, you will need the docker-compose command, you can install it using:
+`docker-compose`:
+### 🐧 Linux:
 
 ```bash
 $ sudo apt-get install docker-compose
 ```
+### ⌘ MacOS
+Download: https://www.docker.com/products/docker-desktop
+
+
 
 ## Clone the repository
 
 ```bash
-$ mkdir /path/to/your/app && cd /path/to/your/app
+$ mkdir -p /path/to/your/app && cd /path/to/your/app
 $ git clone https://github.com/OpenCTI-Platform/docker.git
 $ cd docker
 ```
 
-## Configure the environment
+## 3. Configure the environment
 
-Before running the `docker-compose` command, the `docker-compose.yml` file must be configured.  Two ways to do that:
+Before running the `docker-compose` command, the `docker-compose.yml` file must be configured. 
 
-- Use environment variables as it is proposed and you have an exemple in the `.env.sample` file (ie. `APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}`).
-- Directly set the parameters in the `docker-compose.yml`.
+There are two ways to do that:
 
- Whether you are using one method or the other, here are the mandatory parameters to fill:
+1. Use environment variables as it is proposed and you have an exemple in the `.env.sample` file (ie. `APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}`).
+1. Directly set the parameters in the `docker-compose.yml`.
+
+If setting within the environment, you can reference the methodology in the  [Environment setup on OpenCTI's Notion page](https://luatix.notion.site/Environment-setup-606996f36d904fcf8d434c6d0eae4a00#28b76731cae44cf0a59e70e4c84c795b
+) - located below for ease:
+
+### 🐧 Linux:
 
 ```bash
-OPENCTI_ADMIN_EMAIL=admin@opencti.io # Valid email address
-OPENCTI_ADMIN_PASSWORD=ChangeMe # String
-OPENCTI_ADMIN_TOKEN=ChangeMe # Valid UUIDv4
-MINIO_ROOT_USER=ChangeMeAccess # String
-MINIO_ROOT_PASSWORD=ChangeMeKey # String
-RABBITMQ_DEFAULT_USER=guest # String
-RABBITMQ_DEFAULT_PASS=guest # String
-CONNECTOR_HISTORY_ID=ChangeMe # Valid UUIDv4
-CONNECTOR_EXPORT_FILE_STIX_ID=ChangeMe # Valid UUIDv4
-CONNECTOR_EXPORT_FILE_CSV_ID=ChangeMe # Valid UUIDv4
-CONNECTOR_IMPORT_FILE_STIX_ID=ChangeMe # Valid UUIDv4
-CONNECTOR_IMPORT_FILE_PDF_OBSERVABLES_ID=ChangeMe # Valid UUIDv4
+sudo apt install -y jq
+
+cd ~/docker
+(cat <<EOF
+OPENCTI_ADMIN_EMAIL=admin@opencti.io
+OPENCTI_ADMIN_PASSWORD=CHANGEMEPLEASE
+OPENCTI_ADMIN_TOKEN=$(cat /proc/sys/kernel/random/uuid)
+MINIO_ROOT_USER=$(cat /proc/sys/kernel/random/uuid)
+MINIO_ROOT_PASSWORD=$(cat /proc/sys/kernel/random/uuid)
+RABBITMQ_DEFAULT_USER=guest
+RABBITMQ_DEFAULT_PASS=guest
+CONNECTOR_HISTORY_ID=$(cat /proc/sys/kernel/random/uuid)
+CONNECTOR_EXPORT_FILE_STIX_ID=$(cat /proc/sys/kernel/random/uuid)
+CONNECTOR_EXPORT_FILE_CSV_ID=$(cat /proc/sys/kernel/random/uuid)
+CONNECTOR_EXPORT_FILE_TXT_ID=$(cat /proc/sys/kernel/random/uuid)
+CONNECTOR_IMPORT_FILE_STIX_ID=$(cat /proc/sys/kernel/random/uuid)
+CONNECTOR_IMPORT_DOCUMENT_ID=$(cat /proc/sys/kernel/random/uuid)
+SMTP_HOSTNAME=localhost
+EOF
+) > .env
 ```
+
+### ⌘ MacOS
+```bash
+brew install jq
+cd ~/docker
+ (cat <<EOF
+OPENCTI_ADMIN_EMAIL=admin@opencti.io
+OPENCTI_ADMIN_PASSWORD=CHANGEMEPLEASE
+OPENCTI_ADMIN_TOKEN=$(uuidgen)
+MINIO_ROOT_USER=$(uuidgen)
+MINIO_ROOT_PASSWORD=$(uuidgen)
+RABBITMQ_DEFAULT_USER=guest
+RABBITMQ_DEFAULT_PASS=guest
+CONNECTOR_HISTORY_ID=$(uuidgen)
+CONNECTOR_EXPORT_FILE_STIX_ID=$(uuidgen)
+CONNECTOR_EXPORT_FILE_CSV_ID=$(uuidgen)
+CONNECTOR_EXPORT_FILE_TXT_ID=$(uuidgen)
+CONNECTOR_IMPORT_FILE_STIX_ID=$(uuidgen)
+CONNECTOR_IMPORT_DOCUMENT_ID=$(uuidgen)
+SMTP_HOSTNAME=localhost
+EOF
+) > .env
+```
+
+```bash
+cd ~/docker 
+# trick to export the .env 
+export $(cat .env | grep -v "#" | xargs)
+```
+
+## 4. Memory Management Settings
+
+> For additional memory management information see the Memory configuration notes section
 
 As OpenCTI has a dependency on ElasticSearch, you have to set the `vm.max_map_count` before running the containers, as mentioned in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode).
 
 ```bash
 $ sudo sysctl -w vm.max_map_count=1048575
-
 ```
 
-To make this parameter persistent, please update your `/etc/sysctl.conf` file and add the following line at the end:
+To make this parameter persistent, add the following to the end of your `/etc/sysctl.conf`:
 
 ```bash
 $ vm.max_map_count=1048575
 ```
 
-## Run
+## 5. Run OpenCTI - Full-stack, including UI
 
-### Using single node Docker with single ElasticSearch Node
+### Single node Docker with Single ElasticSearch Node
 
-You can deploy without using Docker swarm, with a the `docker-compose` command. After changing your `.env` file, just type:
-
+After changing your `.env` file run `docker-compose` in detached (`-d`) mode:
 ```bash
 $ sudo docker-compose up -d
 ```
@@ -94,26 +159,45 @@ $ sudo docker-compose -f docker-compose.yml -f docker-compose-multiple-es-nodes.
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 ```
       
-### Using Docker swarm
+### Docker swarm
 
-In order to have the best experience with Docker, we recommend using the Docker stack feature. In this mode you will have the capacity to easily scale your deployment. If your virtual machine is not a part of a Swarm cluster, please use:
+In order to have the best experience with Docker, we recommend using the Docker stack feature. In this mode you will have the capacity to easily scale your deployment. 
+
+If your virtual machine is not already part of a Swarm cluster, initialize a swarm:
 
 ```bash
 $ sudo docker swarm init
 ```
 
-Then, you have to put your environment variables in the `/etc/environment` and then:
+Put your environment variables in the `/etc/environment`:
 
 ```bash
+# If you already exported your variables to .env from above:
+$ sudo cat .env >> /etc/environment
 $ sudo source /etc/environment
 $ sudo docker stack deploy --compose-file docker-compose.yml opencti
 ```
 
 You can now go to [http://localhost:8080](http://localhost:8080/) and log in with the credentials configured in your environment variables.
 
-## Update
+## 6. Run OpenCTI infrastructure with UI/GraphQL in development mode
 
-### Using single node Docker
+In order to develop OpenCTI UI/GraphQL in the most efficient manner we have provided a `docker-compose.dev.yml` which stands up the back-end/infrastructure of OpenCTI, with the expectation that you will run the OpenCTI front-end (React/GraphQL) separately.
+
+This docker-compose exposes all necessary ports for the UI/GraphQL to attach to in order to support local development.
+
+To run the services required for local development run:
+```bash
+$ sudo docker-compose up -f docker-compose.dev.yml -d
+```
+
+To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://luatix.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
+
+# Appendices
+
+## A. How to update your docker instances
+
+### For single node Docker
 
 ```bash
 $ sudo docker-compose stop
@@ -121,7 +205,7 @@ $ sudo docker-compose pull
 $ sudo docker-compose up -d
 ```
 
-### Using Docker swarm
+### For Docker swarm
 
 For each of services, you have to run the following command:
 
@@ -129,7 +213,7 @@ For each of services, you have to run the following command:
 $ sudo docker service update --force service_name
 ```
 
-## Deploy behind a reverse proxy
+## B. How to deploy behind a reverse proxy
 
 If you want to use OpenCTI behind a reverse proxy with a context path, like `https://myproxy.com/opencti`, please change the base_path configuration.
 
@@ -152,37 +236,19 @@ location / {
   }
 ```
 
-## Data persistence
+## C. How to persist data
 
-If you wish your OpenCTI data to be persistent while in production, you should be aware of the `volumes` section for `ElasticSearch`, `MinIO`, `Redis` and `RabbitMQ` services in the `docker-compose.yml`.
+The default for OpenCTI data is to be persistent.
 
-Here is an example of volumes configuration:
+If you do not wish the data to persist:
 
-```
-volumes:
-  esdata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-  s3data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none      
-  redisdata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-  amqpdata:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
+```bash
+$ mv docker-compose.override.no-persist.yml docker-compose.override.yml
 ```
 
-## Memory configuration
+___ 
+
+## D. Memory configuration: additional information
 
 OpenCTI default `docker-compose.yml` file does not provide any specific memory configuration. But if you want to adapt some dependencies configuration, you can find some links below.
 
