@@ -24,7 +24,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - esdata2:/usr/share/elasticsearch/data
+      - esdata3:/usr/share/elasticsearch/data
 
 volumes:
   esdata2:
