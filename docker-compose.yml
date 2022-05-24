@@ -12,7 +12,7 @@ services:
     environment:
       # Comment out the line below for single-node
       - discovery.type=single-node
-      # Use the below for a cluster of multiple nodes, and comment out the line above (single-node)
+      # Uncomment line below below for a cluster of multiple nodes
       # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
     restart: always
