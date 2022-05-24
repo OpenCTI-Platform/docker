@@ -10,6 +10,7 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
+      # Comment out the line below for single-node
       - discovery.type=single-node
       # Use the below for a cluster of multiple nodes, and comment out the line above (single-node)
       # - cluster.name=docker-cluster
