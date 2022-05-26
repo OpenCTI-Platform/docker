@@ -12,6 +12,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.ml.enabled=false
+      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
     ulimits:
       memlock:

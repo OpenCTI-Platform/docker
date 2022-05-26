@@ -11,8 +11,8 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.3
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms4G -Xmx4G"
       - xpack.ml.enabled=false
+      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: unless-stopped
     ulimits:
       memlock:
