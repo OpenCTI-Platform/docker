@@ -49,6 +49,8 @@ Before running the `docker-compose` command, settings must be configured. Copy t
 $ cp .env.sample .env
 ```
 
+**Important:** you must change `OPENCTI_ADMIN_TOKEN` to a valid UUIDv4 token.
+
 In case you need to **generate a UUID**, use the following command:
 
 **🐧 Linux:**
