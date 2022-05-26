@@ -89,12 +89,42 @@ Load the environment setttings:
 set -a ; source .env
 ```
 
+### Single node Docker with Single ElasticSearch Node
 Run `docker-compose` in detached (`-d`) mode:
 
 ```bash
 $ sudo docker-compose up -d
 ```
 
+## Multiple ElasticSearch Nodes
+Update `docker-compose.yml` to use multiple nodes:
+```
+    environment:
+      - cluster.name=docker-cluster
+```
+
+```bash
+$ sudo docker-compose -f docker-compose.yml -f docker-compose-multiple-es-nodes.yml up -d
+```
+
+  > Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu:
+  - 5-10 nodes: m3.medium.elasticsearch
+  - 10-20 nodes: m4.large.elasticsearch
+  - 20-50 nodes: c4.xlarge.elasticsearch
+  - 50-100 nodes: c4.2xlarge.elasticsearch
+
+### Optional Elasticsearch Environment variables:
+```   
+    environment:
+      # Optional parameters - values may vary depending on your setup
+      - bootstrap.memory_lock=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+```
+      
+### Docker swarm
+=======
 
 # Appendices
 

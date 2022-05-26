@@ -10,7 +10,10 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
+      # Comment out the line below for single-node
       - discovery.type=single-node
+      # Uncomment line below below for a cluster of multiple nodes
+      # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
       - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
@@ -174,3 +177,4 @@ volumes:
   s3data:
   redisdata:
   amqpdata:
+
