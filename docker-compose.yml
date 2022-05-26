@@ -1,12 +1,12 @@
 version: '3'
 services:
   redis:
-    image: redis:6.2.6
+    image: redis:7.0.0
     restart: always
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.3
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -15,6 +15,7 @@ services:
       # Uncomment line below below for a cluster of multiple nodes
       # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
+      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
     ulimits:
       memlock:
@@ -24,7 +25,7 @@ services:
         soft: 65536
         hard: 65536
   minio:
-    image: minio/minio:RELEASE.2022-02-26T02-54-46Z
+    image: minio/minio:RELEASE.2022-05-19T18-20-59Z
     volumes:
       - s3data:/data
     ports:
@@ -40,7 +41,7 @@ services:
       retries: 3
     restart: always
   rabbitmq:
-    image: rabbitmq:3.9-management
+    image: rabbitmq:3.10-management
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -48,10 +49,11 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:5.2.4
+    image: opencti/platform:5.3.1
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
+      - APP__BASE_URL=${OPENCTI_BASE_URL}
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -82,7 +84,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:5.2.4
+    image: opencti/worker:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -93,22 +95,8 @@ services:
       mode: replicated
       replicas: 3
     restart: always
-  connector-history:
-    image: opencti/connector-history:5.2.4
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_HISTORY_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=STREAM
-      - CONNECTOR_NAME=History
-      - CONNECTOR_SCOPE=history
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-    restart: always
-    depends_on:
-      - opencti
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:5.2.4
+    image: opencti/connector-export-file-stix:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -122,7 +110,7 @@ services:
     depends_on:
       - opencti
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:5.2.4
+    image: opencti/connector-export-file-csv:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -136,7 +124,7 @@ services:
     depends_on:
       - opencti
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:5.2.4
+    image: opencti/connector-export-file-txt:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -150,7 +138,7 @@ services:
     depends_on:
       - opencti
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:5.2.4
+    image: opencti/connector-import-file-stix:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -166,7 +154,7 @@ services:
     depends_on:
       - opencti
   connector-import-document:
-    image: opencti/connector-import-document:5.2.4
+    image: opencti/connector-import-document:5.3.1
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
