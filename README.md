@@ -1,21 +1,18 @@
-# OpenCTI Docker deployment
+# OpenCTI with Docker
 
 ## Table of Contents
 1. [Introduction](#introduction)
 1. [Pre-Requisites](#pre-requisites)
-1. [Clone the repository](#clone-the-repository)
-1. [Configure the environment settings](#configure-the-environment-settings)
-1. [Memory management settings](#memory-management-settings)
-1. [Run OpenCTI](#run-opencti)
+1. [Clone](#clone)
+1. [Configure](#configure)
+1. [Run](#run)
+1. [Update](#update)
 
-Appendices:
-- [How to run in Docker Swarm](#how-to-run-in-docker-swarm)
-- [How to update your docker instances](#how-to-update-your-docker-instances)
-- [How to deploy behind a reverse proxy](#how-to-deploy-behind-a-reverse-proxy)
-- [How to persist data](#how-to-persist-data)
-- [Run OpenCTI in development mode](#run-opencti-in-development-mode)
-- [Additional Elasticsearch environment variables](#additional-elasticsearch-environment-variables)
-- [Memory configuration: additional information](#memory-configuration-additional-information)
+**Appendices:**
+- [Development environment](#development-environment)
+- [Docker Swarm](#docker-swarm)
+- [Reverse proxy](#reverse-proxy)
+- [Additional configurations](#additional-configurations)
 
 
 ## Introduction: 
@@ -38,14 +35,14 @@ $ sudo chmod +x /usr/bin/docker-compose
 Download: https://www.docker.com/products/docker-desktop
 
 
-## Clone the repository
+## Clone
 
 ```bash
-$ git clone https://github.com/OpenCTI-Platform/docker.git /<choose-a-path>/opencti-docker
-$ cd /<choose-a-path>/opencti-docker
+$ git clone https://github.com/OpenCTI-Platform/docker.git
+$ cd docker/
 ```
 
-## Configure the environment settings
+## Configure
 
 Before running the `docker-compose` command, settings must be configured. Copy the sample settings file and change it accordingly to your needs.
 
@@ -76,9 +73,9 @@ $ uuidgen
 There are 3 profiles available:
 * `demo`: a profile to start a demonstration instance of OpenCTI with all required services.
 * `testing`: a profile to start a OpenCTI with all required services and in addition, elasticsearch in cluster mode with multiple nodes.
-* `development`: a profile to start only the base services like RabbitMQ, Elasticsearch, etc. for development purposes, without OpenCTI components.
+* `development`: a profile to start only the base services like RabbitMQ, Elasticsearch, etc. for development purposes, without OpenCTI components ([see more](#run-opencti-in-development-mode)).
 
-## Memory management settings
+### Memory management setting
 
 > For additional memory management information see the Memory configuration notes section
 
@@ -94,9 +91,9 @@ To make this parameter persistent, execute the following command:
 $ echo "vm.max_map_count=1048575" >> /etc/sysctl.conf
 ```
 
-## Run OpenCTI
+## Run
 
-> The following commands will allow you to run OpenCTI in your local instance using docker. For scenarion like using docker swarm, please see this [section](#A-how-to-run-in-docker-swarm).
+> The following commands will allow you to run OpenCTI in your local instance using docker. For scenarion like using docker swarm, please see this [section](#run-with-docker-swarm).
 
 
 ### Load environment settings
@@ -115,10 +112,35 @@ Run `docker-compose` in detached (`-d`) mode:
 $ sudo -E docker-compose up -d
 ```
 
+## Update
+
+**Please remember that this instructions are not meant to be production ready.**
+
+The following commands will update your local cloned `docker` repository with the new opencti docker image tags (if new updates received) and then, with `docker-compose` command it will automatically start download the new versions and start them in the end.
+
+```bash
+$ git pull
+$ sudo docker-compose up -d
+```
+
 
 # Appendices
 
-## How to run in Docker Swarm
+## Development Environment
+
+In order to develop OpenCTI frontend or/and backend in the most efficient manner we have provided a `development` profile which stands up the infrastructure of OpenCTI, with the expectation that you will run the OpenCTI front-end (React/GraphQL) separately.
+
+This docker-compose exposes all necessary ports for the UI/GraphQL to attach to in order to support local development.
+
+To run the services required for local development, please perform the following steps:
+
+1. Remove any running services using `$ sudo docker-compose down`;
+2. Change the `COMPOSE_PROFILES` environment variable in your `.env` file with the value `development`;
+3. Execute: `$ sudo docker-compose up -d`;
+
+To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://luatix.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
+
+## Docker Swarm
 
 In order to have the best experience with Docker, we recommend using the Docker stack feature. In this mode you will have the capacity to easily scale your deployment. 
 
@@ -139,17 +161,7 @@ $ sudo docker stack deploy --compose-file docker-compose.yml opencti
 
 You can now go to [http://localhost:8080](http://localhost:8080/) and log in with the credentials configured in your environment variables.
 
-## How to update your docker instances
-
-### For single node Docker
-
-```bash
-$ sudo docker-compose stop
-$ sudo docker-compose pull
-$ sudo docker-compose up -d
-```
-
-### For Docker swarm
+### Update docker instances
 
 For each of services, you have to run the following command:
 
@@ -157,7 +169,7 @@ For each of services, you have to run the following command:
 $ sudo docker service update --force service_name
 ```
 
-## How to deploy behind a reverse proxy
+## Reverse proxy
 
 If you want to use OpenCTI behind a reverse proxy with a context path, like `https://myproxy.com/opencti`, please change the base_path configuration.
 
@@ -180,48 +192,7 @@ location / {
   }
 ```
 
-## How to persist data
-
-The default for OpenCTI data is to be persistent.
-
-If you do not wish the data to persist:
-
-```bash
-$ mv docker-compose.override.no-persist.yml docker-compose.override.yml
-```
-
-## Run OpenCTI in development mode
-
-In order to develop OpenCTI frontend or/and backend in the most efficient manner we have provided a `development` profile which stands up the infrastructure of OpenCTI, with the expectation that you will run the OpenCTI front-end (React/GraphQL) separately.
-
-This docker-compose exposes all necessary ports for the UI/GraphQL to attach to in order to support local development.
-
-To run the services required for local development, please perform the following steps:
-
-1. Remove any running services using `$ sudo docker-compose down`;
-2. Change the `COMPOSE_PROFILES` environment variable in your `.env` file with the value `development`;
-3. Execute: `$ sudo docker-compose up -d`;
-
-To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://luatix.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
-
-
-## Additional Elasticsearch environment variables
-
-```   
-    environment:
-      # Optional parameters - values may vary depending on your setup
-      - bootstrap.memory_lock=true
-      - http.cors.enabled=true
-      - http.cors.allow-origin=*
-```
-
-> Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu:
-- 5-10 nodes: m3.medium.elasticsearch
-- 10-20 nodes: m4.large.elasticsearch
-- 20-50 nodes: c4.xlarge.elasticsearch
-- 50-100 nodes: c4.2xlarge.elasticsearch
-
-## Memory configuration: additional information
+## Additional configurations
 
 OpenCTI default `docker-compose.yml` file does not provide a lot of specific memory configuration. But if you want to adapt some dependencies configuration, you can find some links below.
 
@@ -242,6 +213,21 @@ ElasticSearch is also a JAVA process. In order to setup the JAVA memory allocati
 The minimal recommended option today is -Xms8G -Xmx8G.
 
 You can find more information in the [official ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html).
+
+**Extra settings**
+```
+    environment:
+      # Optional parameters - values may vary depending on your setup
+      - bootstrap.memory_lock=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+```
+
+> Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu:
+- 5-10 nodes: m3.medium.elasticsearch
+- 10-20 nodes: m4.large.elasticsearch
+- 20-50 nodes: c4.xlarge.elasticsearch
+- 50-100 nodes: c4.2xlarge.elasticsearch
 
 ### Redis
 
