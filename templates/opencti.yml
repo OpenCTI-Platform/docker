@@ -1,0 +1,156 @@
+version: '3'
+
+services:
+
+  platform:
+    image: opencti/platform:5.3.1
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=8096
+      - APP__PORT=8080
+      - APP__BASE_URL=${OPENCTI_BASE_URL}
+      - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
+      - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
+      - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - APP__APP_LOGS__LOGS_LEVEL=error
+      - REDIS__HOSTNAME=redis
+      - REDIS__PORT=6379
+      - ELASTICSEARCH__URL=http://elasticsearch:9200
+      - MINIO__ENDPOINT=minio
+      - MINIO__PORT=9000
+      - MINIO__USE_SSL=false
+      - MINIO__ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO__SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - RABBITMQ__HOSTNAME=rabbitmq
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__PORT_MANAGEMENT=15672
+      - RABBITMQ__MANAGEMENT_SSL=false
+      - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - SMTP__HOSTNAME=${SMTP_HOSTNAME}
+      - SMTP__PORT=25
+      - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
+    depends_on:
+      - redis
+      - elasticsearch
+      - minio
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    image: opencti/worker:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - WORKER_LOG_LEVEL=info
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  connector-export-file-stix:
+    image: opencti/connector-export-file-stix:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileStix2
+      - CONNECTOR_SCOPE=application/json
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  connector-export-file-csv:
+    image: opencti/connector-export-file-csv:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileCsv
+      - CONNECTOR_SCOPE=text/csv
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  connector-export-file-txt:
+    image: opencti/connector-export-file-txt:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileTxt
+      - CONNECTOR_SCOPE=text/plain
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  connector-import-file-stix:
+    image: opencti/connector-import-file-stix:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
+      - CONNECTOR_NAME=ImportFileStix
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_SCOPE=application/json,text/xml
+      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  connector-import-document:
+    image: opencti/connector-import-document:5.3.1
+    environment:
+      - OPENCTI_URL=http://platform:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
+      - CONNECTOR_NAME=ImportDocument
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
+      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
+      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - IMPORT_DOCUMENT_CREATE_INDICATOR=true
+    depends_on:
+      - platform
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

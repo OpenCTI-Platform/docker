@@ -1,180 +1,257 @@
 version: '3'
-services:
+
+volumes:
+  elasticsearch-single-node:
+  elasticsearch-node-1:
+  elasticsearch-node-2:
+  elasticsearch-node-3:
+  s3:
   redis:
-    image: redis:7.0.0
+  amqp:
+
+
+services:
+
+  #####################
+  ### Redis
+  #####################
+
+  redis:
+    extends:
+      file: templates/services.yml
+      service: redis
+    profiles:
+      - demo
+      - testing
     restart: always
     volumes:
-      - redisdata:/data
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.3
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      # Comment out the line below for single-node
-      - discovery.type=single-node
-      # Uncomment line below below for a cluster of multiple nodes
-      # - cluster.name=docker-cluster
-      - xpack.ml.enabled=false
-      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
+      - redis:/data
+
+  redis-dev:
+    extends:
+      file: templates/services.yml
+      service: redis
+    profiles:
+      - development
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+
+
+  #####################
+  ### RabbitMQ
+  #####################
+
+  rabbitmq:
+    extends:
+      file: templates/services.yml
+      service: rabbitmq
+    profiles:
+      - demo
+      - testing
     restart: always
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
+    volumes:
+      - amqp:/var/lib/rabbitmq
+
+  rabbitmq-dev:
+    extends:
+      file: templates/services.yml
+      service: rabbitmq
+    profiles:
+      - development
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+
+  #####################
+  ### MinIO
+  #####################
+
   minio:
-    image: minio/minio:RELEASE.2022-05-19T18-20-59Z
+    extends:
+      file: templates/services.yml
+      service: minio
+    profiles:
+      - demo
+      - testing
+    command: server /data
+    restart: always
     volumes:
-      - s3data:/data
+      - s3:/data
+    # ports:
+    #   - "9000:9000" # FIXME
+
+  minio-dev:
+    extends:
+      file: templates/services.yml
+      service: minio
+    profiles:
+      - development
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
     ports:
       - "9000:9000"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
-    command: server /data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      - "9001:9001"
+
+
+  #####################
+  ### ElasticSearch
+  #####################
+
+  elasticsearch-single-node:
+    extends:
+      file: templates/services.yml
+      service: elasticsearch-single-node
+    profiles:
+      - demo
     restart: always
-  rabbitmq:
-    image: rabbitmq:3.10-management
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     volumes:
-      - amqpdata:/var/lib/rabbitmq
+      - elasticsearch-single-node:/usr/share/elasticsearch/data
+
+  elasticsearch-node-1:
+    extends:
+      file: templates/services.yml
+      service: elasticsearch-cluster-node
+    profiles:
+      - testing
     restart: always
-  opencti:
-    image: opencti/platform:5.3.1
     environment:
-      - NODE_OPTIONS=--max-old-space-size=8096
-      - APP__PORT=8080
-      - APP__BASE_URL=${OPENCTI_BASE_URL}
-      - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
-      - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
-      - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - APP__APP_LOGS__LOGS_LEVEL=error
-      - REDIS__HOSTNAME=redis
-      - REDIS__PORT=6379
-      - ELASTICSEARCH__URL=http://elasticsearch:9200
-      - MINIO__ENDPOINT=minio
-      - MINIO__PORT=9000
-      - MINIO__USE_SSL=false
-      - MINIO__ACCESS_KEY=${MINIO_ROOT_USER}
-      - MINIO__SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      - RABBITMQ__HOSTNAME=rabbitmq
-      - RABBITMQ__PORT=5672
-      - RABBITMQ__PORT_MANAGEMENT=15672
-      - RABBITMQ__MANAGEMENT_SSL=false
-      - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
-      - SMTP__HOSTNAME=${SMTP_HOSTNAME}
-      - SMTP__PORT=25
-      - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
+      - node.name=elasticsearch-node-1
+      - discovery.seed_hosts=elasticsearch-node-2,elasticsearch-node-3
+      - cluster.initial_master_nodes=elasticsearch-node-1,elasticsearch-node-2,elasticsearch-node-3
+    volumes:
+      - elasticsearch-node-1:/usr/share/elasticsearch/data
+
+  elasticsearch-node-2:
+    extends:
+      file: templates/services.yml
+      service: elasticsearch-cluster-node
+    profiles:
+      - testing
+    restart: always
+    environment:
+      - node.name=elasticsearch-node-2
+      - discovery.seed_hosts=elasticsearch-node-1,elasticsearch-node-3
+      - cluster.initial_master_nodes=elasticsearch-node-1,elasticsearch-node-2,elasticsearch-node-3
+    volumes:
+      - elasticsearch-node-2:/usr/share/elasticsearch/data
+
+  elasticsearch-node-3:
+    extends:
+      file: templates/services.yml
+      service: elasticsearch-cluster-node
+    profiles:
+      - testing
+    restart: always
+    environment:
+      - node.name=elasticsearch-node-3
+      - discovery.seed_hosts=elasticsearch-node-1,elasticsearch-node-2
+      - cluster.initial_master_nodes=elasticsearch-node-1,elasticsearch-node-2,elasticsearch-node-3
+    volumes:
+      - elasticsearch-node-3:/usr/share/elasticsearch/data
+
+  elasticsearch-dev:
+    extends:
+      file: templates/services.yml
+      service: elasticsearch-single-node
+    profiles:
+      - development
+    restart: unless-stopped
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+
+  #####################
+  ### Kibana
+  #####################
+
+  kibana-dev:
+    extends:
+      file: templates/services.yml
+      service: kibana
+    profiles:
+      - development
+    restart: unless-stopped
+    ports:
+      - 5601:5601
+
+
+  #####################
+  ### OpenCTI Core
+  #####################
+
+  platform:
+    extends:
+      file: templates/opencti.yml
+      service: platform
+    profiles:
+      - demo
+      - testing
+    restart: always
     ports:
       - "8080:8080"
-    depends_on:
-      - redis
-      - elasticsearch
-      - minio
-      - rabbitmq
-    restart: always
+
   worker:
-    image: opencti/worker:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - WORKER_LOG_LEVEL=info
-    depends_on:
-      - opencti
+    extends:
+      file: templates/opencti.yml
+      service: worker
+    profiles:
+      - demo
+      - testing
+    restart: always
     deploy:
       mode: replicated
       replicas: 3
-    restart: always
+
+
+  #####################
+  ### OpenCTI Connectors
+  #####################
+
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileStix2
-      - CONNECTOR_SCOPE=application/json
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+    extends:
+      file: templates/opencti.yml
+      service: connector-export-file-stix
+    profiles:
+      - demo
+      - testing
     restart: always
-    depends_on:
-      - opencti
+
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileCsv
-      - CONNECTOR_SCOPE=text/csv
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+    extends:
+      file: templates/opencti.yml
+      service: connector-export-file-csv
+    profiles:
+      - demo
+      - testing
     restart: always
-    depends_on:
-      - opencti
+
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileTxt
-      - CONNECTOR_SCOPE=text/plain
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+    extends:
+      file: templates/opencti.yml
+      service: connector-export-file-txt
+    profiles:
+      - demo
+      - testing
     restart: always
-    depends_on:
-      - opencti
+
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
-      - CONNECTOR_NAME=ImportFileStix
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
-      - CONNECTOR_SCOPE=application/json,text/xml
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+    extends:
+      file: templates/opencti.yml
+      service: connector-import-file-stix
+    profiles:
+      - demo
+      - testing
     restart: always
-    depends_on:
-      - opencti
+
   connector-import-document:
-    image: opencti/connector-import-document:5.3.1
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
-      - CONNECTOR_NAME=ImportDocument
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
-      - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-      - IMPORT_DOCUMENT_CREATE_INDICATOR=true
+    extends:
+      file: templates/opencti.yml
+      service: connector-import-document
+    profiles:
+      - demo
+      - testing
     restart: always
-    depends_on:
-      - opencti
-
-volumes:
-  esdata:
-  s3data:
-  redisdata:
-  amqpdata:
-
