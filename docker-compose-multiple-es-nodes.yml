@@ -1,7 +1,7 @@
 version: '3'
 services:
   elasticsearch2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.4
     container_name: elasticsearch2
     environment:
       - cluster.name=docker-cluster
@@ -14,7 +14,7 @@ services:
       - esdata2:/usr/share/elasticsearch/data
 
   elasticsearch3:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.4
     container_name: elasticsearch3
     environment:
       - cluster.name=docker-cluster
