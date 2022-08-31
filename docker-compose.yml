@@ -15,6 +15,7 @@ services:
       # Uncomment line below below for a cluster of multiple nodes
       # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
+      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
     ulimits:
