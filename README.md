@@ -211,7 +211,7 @@ To run the services required for local development run:
 $ sudo docker-compose up -f docker-compose.dev.yml -d
 ```
 
-To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://luatix.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
+To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://filigran.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
 
 ## F. Memory configuration: additional information
 
