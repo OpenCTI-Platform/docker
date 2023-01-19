@@ -1,10 +1,17 @@
 version: '3'
 services:
+
   redis:
     image: redis:7.0.6
-    restart: always
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG", "||", "exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
     volumes:
@@ -17,7 +24,6 @@ services:
       - xpack.ml.enabled=false
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
-    restart: always
     ulimits:
       memlock:
         soft: -1
@@ -25,12 +31,18 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
   minio:
     image: minio/minio:RELEASE.2022-09-25T15-44-53Z
     volumes:
       - s3data:/data
-    ports:
-      - "9000:9000"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
@@ -41,6 +53,7 @@ services:
       timeout: 20s
       retries: 3
     restart: always
+
   rabbitmq:
     image: rabbitmq:3.11-management
     environment:
@@ -48,13 +61,19 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     volumes:
       - amqpdata:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 30s
+      retries: 3
     restart: always
-  opencti:
+
+  platform:
     image: opencti/platform:5.5.2
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
-      - APP__BASE_URL=${OPENCTI_BASE_URL}
+      - APP__BASE_URL=${OPENCTI_URL}
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -83,67 +102,77 @@ services:
       - elasticsearch
       - minio
       - rabbitmq
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://platform:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: always
+
   worker:
     image: opencti/worker:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - WORKER_LOG_LEVEL=info
     depends_on:
-      - opencti
+      - platform
     deploy:
       mode: replicated
       replicas: 3
     restart: always
+
   connector-export-file-stix:
     image: opencti/connector-export-file-stix:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_ID=dd817c8b-abae-460a-9ebc-97b1551e70e6
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
-    restart: always
     depends_on:
-      - opencti
+      - platform
+    restart: always
+
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      - CONNECTOR_ID=7ba187fb-fde8-4063-92b5-c3da34060dd7
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=text/csv
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
-    restart: always
     depends_on:
-      - opencti
+      - platform
+    restart: always
+
   connector-export-file-txt:
     image: opencti/connector-export-file-txt:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
+      - CONNECTOR_ID=ca715d9c-bd64-4351-91db-33a8d728a58b
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileTxt
       - CONNECTOR_SCOPE=text/plain
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
-    restart: always
     depends_on:
-      - opencti
+      - platform
+    restart: always
+
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_ID=72327164-0b35-482b-b5d6-a5a3f76b845f
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix
       - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
@@ -151,15 +180,16 @@ services:
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
-    restart: always
     depends_on:
-      - opencti
+      - platform
+    restart: always
+
   connector-import-document:
     image: opencti/connector-import-document:5.5.2
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=http://platform:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
+      - CONNECTOR_ID=c3970f8a-ce4b-4497-a381-20b7256f56f0
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportDocument
       - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
@@ -169,9 +199,9 @@ services:
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_LOG_LEVEL=info
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
-    restart: always
     depends_on:
-      - opencti
+      - platform
+    restart: always
 
 volumes:
   esdata:

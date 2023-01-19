@@ -46,7 +46,7 @@ $ cd /<choose-a-path>/opencti-docker
 Before running the `docker-compose` command, settings must be configured. Copy the sample settings file and change it accordingly to your needs.
 
 ```bash
-$ cp .env.sample .env
+$ cp .env.dist .env
 ```
 
 **Important:** you must change `OPENCTI_ADMIN_TOKEN` to a valid UUIDv4 token.
@@ -83,17 +83,11 @@ $ vm.max_map_count=1048575
 
 > The following commands will allow you to run OpenCTI in your local instance using docker. For scenarion like using docker swarm, please see this [section](#A-how-to-run-in-docker-swarm).
 
-Load the environment setttings:
-
-```bash
-set -a ; source .env
-```
-
 ### Single node Docker with Single ElasticSearch Node
 Run `docker-compose` in detached (`-d`) mode:
 
 ```bash
-$ sudo docker-compose up -d
+$ sudo docker-compose --env-file .env up -d
 ```
 
 ## Multiple ElasticSearch Nodes
@@ -104,7 +98,7 @@ Update `docker-compose.yml` to use multiple nodes:
 ```
 
 ```bash
-$ sudo docker-compose -f docker-compose.yml -f docker-compose-multiple-es-nodes.yml up -d
+$ sudo docker-compose --env-file .env -f docker-compose.yml -f docker-compose-multiple-es-nodes.yml up -d
 ```
 
   > Per https://www.bluematador.com/docs/troubleshooting/aws-elasticsearch-cpu:
@@ -156,7 +150,7 @@ You can now go to [http://localhost:8080](http://localhost:8080/) and log in wit
 ```bash
 $ sudo docker-compose stop
 $ sudo docker-compose pull
-$ sudo docker-compose up -d
+$ sudo docker-compose --env-file .env up -d
 ```
 
 ### For Docker swarm
@@ -208,7 +202,7 @@ This docker-compose exposes all necessary ports for the UI/GraphQL to attach to 
 
 To run the services required for local development run:
 ```bash
-$ sudo docker-compose up -f docker-compose.dev.yml -d
+$ sudo docker-compose --env-file .env up -f docker-compose.dev.yml -d
 ```
 
 To configure/run the UI/GraphQL we would direct you to the [Notion documentation](https://filigran.notion.site/Frontend-1278fff370304cf09f6fd54ffb06f0b4)
