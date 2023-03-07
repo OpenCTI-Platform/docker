@@ -1,12 +1,12 @@
 version: '3'
 services:
   redis:
-    image: redis:7.0.8
+    image: redis:7.0.9
     restart: always
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -26,7 +26,7 @@ services:
         soft: 65536
         hard: 65536
   minio:
-    image: minio/minio:RELEASE.2023-01-31T02-24-19Z
+    image: minio/minio:RELEASE.2023-02-27T18-10-45Z
     volumes:
       - s3data:/data
     ports:
@@ -50,7 +50,7 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:5.5.4
+    image: opencti/platform:5.6.0
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -85,7 +85,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:5.5.4
+    image: opencti/worker:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -97,7 +97,7 @@ services:
       replicas: 3
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:5.5.4
+    image: opencti/connector-export-file-stix:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -111,7 +111,7 @@ services:
     depends_on:
       - opencti
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:5.5.4
+    image: opencti/connector-export-file-csv:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -125,7 +125,7 @@ services:
     depends_on:
       - opencti
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:5.5.4
+    image: opencti/connector-export-file-txt:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -139,7 +139,7 @@ services:
     depends_on:
       - opencti
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:5.5.4
+    image: opencti/connector-import-file-stix:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -155,7 +155,7 @@ services:
     depends_on:
       - opencti
   connector-import-document:
-    image: opencti/connector-import-document:5.5.4
+    image: opencti/connector-import-document:5.6.0
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}

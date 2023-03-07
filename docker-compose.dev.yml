@@ -2,13 +2,13 @@ version: '3'
 services:
   opencti-dev-redis:
     container_name: opencti-dev-redis
-    image: redis:7.0.8
+    image: redis:7.0.9
     restart: unless-stopped
     ports:
       - 6379:6379
   opencti-dev-elasticsearch:
     container_name: opencti-dev-elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     environment:
       - discovery.type=single-node
       - xpack.ml.enabled=false
@@ -27,7 +27,7 @@ services:
       - 9300:9300
   opencti-dev-kibana:
     container_name: opencti-dev-kibana
-    image: docker.elastic.co/kibana/kibana:8.6.1
+    image: docker.elastic.co/kibana/kibana:8.6.2
     environment:
       - ELASTICSEARCH_HOSTS=http://opencti-dev-elasticsearch:9200
     restart: unless-stopped
@@ -37,7 +37,7 @@ services:
       - opencti-dev-elasticsearch
   opencti-dev-minio:
     container_name: opencti-dev-minio
-    image: minio/minio:RELEASE.2023-01-31T02-24-19Z
+    image: minio/minio:RELEASE.2023-02-27T18-10-45Z
     ports:
       - "9000:9000"
       - "9001:9001"
