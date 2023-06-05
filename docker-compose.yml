@@ -10,9 +10,9 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
-      # Comment out the line below for single-node
+      # Comment-out the line below for a cluster of multiple nodes
       - discovery.type=single-node
-      # Uncomment line below below for a cluster of multiple nodes
+      # Uncomment the line below below for a cluster of multiple nodes
       # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
       - xpack.security.enabled=false
