@@ -8,12 +8,11 @@ services:
       - 6379:6379
   opencti-dev-elasticsearch:
     container_name: opencti-dev-elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    image: opensearchproject/opensearch:2.8.0
     environment:
       - discovery.type=single-node
-      - xpack.ml.enabled=false
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms8G -Xmx8G"
+      - plugins.security.disabled=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms8G -Xmx8G"
     restart: unless-stopped
     ulimits:
       memlock:
@@ -27,9 +26,10 @@ services:
       - 9300:9300
   opencti-dev-kibana:
     container_name: opencti-dev-kibana
-    image: docker.elastic.co/kibana/kibana:8.8.1
+    image: opensearchproject/opensearch-dashboards:2.8.0
     environment:
-      - ELASTICSEARCH_HOSTS=http://opencti-dev-elasticsearch:9200
+      - OPENSEARCH_HOSTS=http://opencti-dev-elasticsearch:9200
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     restart: unless-stopped
     ports:
       - 5601:5601

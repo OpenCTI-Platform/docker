@@ -6,17 +6,16 @@ services:
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    image: opensearchproject/opensearch:2.8.0
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - esdata:/usr/share/opensearch/data
     environment:
       # Comment-out the line below for a cluster of multiple nodes
       - discovery.type=single-node
       # Uncomment the line below below for a cluster of multiple nodes
       # - cluster.name=docker-cluster
-      - xpack.ml.enabled=false
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
+      - plugins.security.disabled=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
     ulimits:
       memlock:
