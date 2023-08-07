@@ -18,6 +18,9 @@ services:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
     ulimits:
       memlock:
         soft: -1
