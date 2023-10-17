@@ -6,7 +6,7 @@ services:
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
