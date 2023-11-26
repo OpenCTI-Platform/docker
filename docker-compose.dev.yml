@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     ports:
       - 6379:6379
-  opencti-dev-elasticsearch:
-    container_name: opencti-dev-elasticsearch
+  opencti-dev-opensearch:
+    container_name: opencti-dev-opensearch
     image: opensearchproject/opensearch:2.11.0
     environment:
       - discovery.type=single-node
@@ -24,17 +24,17 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-  opencti-dev-kibana:
-    container_name: opencti-dev-kibana
+  opencti-dev-dashboards:
+    container_name: opencti-dev-dashboards
     image: opensearchproject/opensearch-dashboards:2.11.0
     environment:
-      - OPENSEARCH_HOSTS=http://opencti-dev-elasticsearch:9200
+      - OPENSEARCH_HOSTS=http://opencti-dev-opensearch:9200
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     restart: unless-stopped
     ports:
       - 5601:5601
     depends_on:
-      - opencti-dev-elasticsearch
+      - opencti-dev-opensearch
   opencti-dev-minio:
     container_name: opencti-dev-minio
     image: minio/minio:RELEASE.2023-11-01T01-57-10Z
