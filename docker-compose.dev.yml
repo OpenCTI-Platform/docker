@@ -26,7 +26,7 @@ services:
       - 9300:9300
   opencti-dev-kibana:
     container_name: opencti-dev-kibana
-    image: opensearchproject/opensearch-dashboards:2.8.0
+    image: opensearchproject/opensearch-dashboards:2.11.0
     environment:
       - OPENSEARCH_HOSTS=http://opencti-dev-elasticsearch:9200
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
