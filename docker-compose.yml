@@ -119,7 +119,7 @@ services:
     depends_on:
       - opencti
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:5.12.15
+    image: opencti/connector-export-file-txt:5.12.19
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
