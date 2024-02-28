@@ -45,7 +45,7 @@ services:
       - amqpdata:/var/lib/rabbitmq
     restart: always
   opencti:
-    image: opencti/platform:5.12.20
+    image: opencti/platform:5.12.33
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
