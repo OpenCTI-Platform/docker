@@ -8,7 +8,7 @@ services:
       - 6379:6379
   opencti-dev-opensearch:
     container_name: opencti-dev-opensearch
-    image: opensearchproject/opensearch:2.11.1
+    image: opensearchproject/opensearch:2.12.0
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
