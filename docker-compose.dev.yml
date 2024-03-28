@@ -1,4 +1,5 @@
-version: '3'
+version: '3.8'
+
 services:
   opencti-dev-redis:
     container_name: opencti-dev-redis
@@ -6,6 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - 6379:6379
+
   opencti-dev-elasticsearch:
     container_name: opencti-dev-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
@@ -25,6 +27,7 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
+
   opencti-dev-kibana:
     container_name: opencti-dev-kibana
     image: docker.elastic.co/kibana/kibana:8.12.2
@@ -35,6 +38,7 @@ services:
       - 5601:5601
     depends_on:
       - opencti-dev-elasticsearch
+
   opencti-dev-minio:
     container_name: opencti-dev-minio
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
@@ -46,6 +50,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
     restart: unless-stopped
+
   opencti-dev-rabbitmq:
     container_name: opencti-dev-rabbitmq
     image: rabbitmq:3.13-management
