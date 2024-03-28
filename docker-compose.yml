@@ -1,10 +1,33 @@
-version: '3'
+version: '3.8'
+
+x-opencti-common-environment: &opencti-common-environment
+  OPENCTI_URL: http://opencti:8080
+  OPENCTI_TOKEN: ${OPENCTI_ADMIN_TOKEN}
+
+x-connector-service-settings: &connnector-service-settings
+  deploy: &connector-deploy-settings
+    replicas: 1
+    placement:
+      constraints:
+        - node.role == opencti-core
+  environment: &connector-environment-vars
+    <<: *opencti-common-environment
+    CONNECTOR_CONFIDENCE_LEVEL: 15 # From 0 (Unknown) to 100 (Fully trusted)
+    CONNECTOR_LOG_LEVEL: info
+
+
 services:
   redis:
     image: redis:7.2.4
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == cache-queue
     restart: always
     volumes:
       - redisdata:/data
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
     volumes:
@@ -27,6 +50,7 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+
   minio:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     volumes:
@@ -35,11 +59,17 @@ services:
       - "9000:9000"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data
     restart: always
+
   rabbitmq:
     image: rabbitmq:3.13-management
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == cache-queue
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -47,8 +77,14 @@ services:
     volumes:
       - amqpdata:/var/lib/rabbitmq
     restart: always
+
   opencti:
     image: opencti/platform:6.0.8
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == opencti-core
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -82,91 +118,93 @@ services:
       - minio
       - rabbitmq
     restart: always
+
   worker:
     image: opencti/worker:6.0.8
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == opencti-core
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - WORKER_LOG_LEVEL=info
+      <<: *opencti-common-environment
+      WORKER_LOG_LEVEL: info
     depends_on:
       - opencti
-    deploy:
-      mode: replicated
-      replicas: 3
     restart: always
+
   connector-export-file-stix:
     image: opencti/connector-export-file-stix:6.0.8
+    deploy:
+      <<: *connector-deploy-settings
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileStix2
-      - CONNECTOR_SCOPE=application/json
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+      <<: *connector-environment-vars
+      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
+      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
+      CONNECTOR_NAME: ExportFileStix2
+      CONNECTOR_SCOPE: application/json
     restart: always
     depends_on:
       - opencti
+
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:6.0.8
+    deploy:
+      <<: *connector-deploy-settings
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileCsv
-      - CONNECTOR_SCOPE=text/csv
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+      <<: *connector-environment-vars
+      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
+      CONNECTOR_NAME: ExportFileCsv
+      CONNECTOR_SCOPE: text/csv
     restart: always
     depends_on:
       - opencti
+
   connector-export-file-txt:
     image: opencti/connector-export-file-txt:6.0.8
+    deploy:
+      <<: *connector-deploy-settings
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
-      - CONNECTOR_NAME=ExportFileTxt
-      - CONNECTOR_SCOPE=text/plain
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+      <<: *connector-environment-vars
+      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
+      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
+      CONNECTOR_NAME: ExportFileTxt
+      CONNECTOR_SCOPE: text/plain
     restart: always
     depends_on:
       - opencti
+
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:6.0.8
+    deploy:
+      <<: *connector-deploy-settings
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
-      - CONNECTOR_NAME=ImportFileStix
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
-      - CONNECTOR_SCOPE=application/json,text/xml
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+      <<: *connector-environment-vars
+      CONNECTOR_ID: ${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
+      CONNECTOR_TYPE: INTERNAL_IMPORT_FILE
+      CONNECTOR_NAME: ImportFileStix
+      CONNECTOR_VALIDATE_BEFORE_IMPORT: true # Validate any bundle before import
+      CONNECTOR_SCOPE: application/json,text/xml
+      CONNECTOR_AUTO: true # Enable/disable auto-import of file
     restart: always
     depends_on:
       - opencti
+
   connector-import-document:
     image: opencti/connector-import-document:6.0.8
+    deploy:
+      <<: *connector-deploy-settings
     environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
-      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
-      - CONNECTOR_NAME=ImportDocument
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
-      - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-      - IMPORT_DOCUMENT_CREATE_INDICATOR=true
+      <<: *connector-environment-vars
+      CONNECTOR_ID: ${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
+      CONNECTOR_TYPE: INTERNAL_IMPORT_FILE
+      CONNECTOR_NAME: ImportDocument
+      CONNECTOR_VALIDATE_BEFORE_IMPORT: true # Validate any bundle before import
+      CONNECTOR_SCOPE: application/pdf,text/plain,text/html
+      CONNECTOR_AUTO: true # Enable/disable auto-import of file
+      CONNECTOR_ONLY_CONTEXTUAL: false # Only extract data related to an entity (a report, a threat actor, etc.)
+      CONNECTOR_CONFIDENCE_LEVEL: 15 # From 0 (Unknown) to 100 (Fully trusted)
     restart: always
     depends_on:
       - opencti
@@ -174,6 +212,21 @@ services:
 volumes:
   esdata:
   s3data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/s3data
   redisdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/redisdata
   amqpdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/amqpdata
 

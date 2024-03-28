@@ -13,7 +13,7 @@ services:
       - discovery.type=single-node
       - xpack.ml.enabled=false
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms8G -Xmx8G"
+      - "ES_JAVA_OPTS=-Xms1G -Xmx1G"
     restart: unless-stopped
     ulimits:
       memlock:
