@@ -26,7 +26,7 @@ services:
       - 9300:9300
   opencti-dev-dashboards:
     container_name: opencti-dev-dashboards
-    image: opensearchproject/opensearch-dashboards:2.12.0
+    image: opensearchproject/opensearch-dashboards:2.13.0
     environment:
       - OPENSEARCH_HOSTS=http://opencti-dev-opensearch:9200
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
