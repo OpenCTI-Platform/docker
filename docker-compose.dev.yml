@@ -5,7 +5,7 @@ services:
     image: redis:7.2.4
     restart: unless-stopped
     ports:
-      - 6379:6379
+      - "6379:6379"
   opencti-dev-opensearch:
     container_name: opencti-dev-opensearch
     image: opensearchproject/opensearch:2.13.0
@@ -22,8 +22,8 @@ services:
         soft: 65536
         hard: 65536
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "9200:9200"
+      - "9300:9300"
   opencti-dev-dashboards:
     container_name: opencti-dev-dashboards
     image: opensearchproject/opensearch-dashboards:2.13.0
@@ -32,7 +32,7 @@ services:
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     restart: unless-stopped
     ports:
-      - 5601:5601
+      - "5601:5601"
     depends_on:
       - opencti-dev-opensearch
   opencti-dev-minio:
@@ -56,5 +56,5 @@ services:
     image: rabbitmq:3.13-management
     restart: unless-stopped
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
