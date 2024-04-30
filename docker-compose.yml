@@ -1,33 +1,35 @@
 version: '3'
 services:
   redis:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: redis:7.2.4
     restart: always
     volumes:
       - redisdata:/data
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      # Comment-out the line below for a cluster of multiple nodes
-      - discovery.type=single-node
-      # Uncomment the line below below for a cluster of multiple nodes
-      # - cluster.name=docker-cluster
-      - xpack.ml.enabled=false
-      - xpack.security.enabled=false
-      - thread_pool.search.queue_size=5000
-      - logger.org.elasticsearch.discovery="ERROR"
-      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
-    restart: always
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
+      
+
+  nginx:
+    image: codeforafrica/cfa-opencti:0.0.6
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == manager
+    ports:
+      - "80:80"
+    depends_on:
+      - opencti
+
   minio:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core  
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     volumes:
       - s3data:/data
@@ -38,6 +40,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
     command: server /data
     restart: always
+
   rabbitmq:
     image: rabbitmq:3.13-management
     environment:
@@ -47,7 +50,13 @@ services:
     volumes:
       - amqpdata:/var/lib/rabbitmq
     restart: always
+
   opencti:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/platform:6.0.10
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
@@ -59,7 +68,8 @@ services:
       - APP__APP_LOGS__LOGS_LEVEL=error
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
-      - ELASTICSEARCH__URL=http://elasticsearch:9200
+      - ELASTICSEARCH__SSL__REJECT_UNAUTHORIZED="false"
+      - "ELASTICSEARCH__URL=[\"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_1}:${ELASTIC_PORT}\", \"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_2}:${ELASTIC_PORT}\", \"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_3}:${ELASTIC_PORT}\"]"
       - MINIO__ENDPOINT=minio
       - MINIO__PORT=9000
       - MINIO__USE_SSL=false
@@ -82,10 +92,11 @@ services:
       - minio
       - rabbitmq
     restart: always
+
   worker:
     image: opencti/worker:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - WORKER_LOG_LEVEL=info
     depends_on:
@@ -93,11 +104,20 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+      placement:
+        constraints:
+          - node.labels.role == opencti-core
     restart: always
+    
   connector-export-file-stix:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/connector-export-file-stix:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
@@ -108,10 +128,16 @@ services:
     restart: always
     depends_on:
       - opencti
+
   connector-export-file-csv:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/connector-export-file-csv:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
@@ -122,10 +148,16 @@ services:
     restart: always
     depends_on:
       - opencti
+
   connector-export-file-txt:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/connector-export-file-txt:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
@@ -136,10 +168,16 @@ services:
     restart: always
     depends_on:
       - opencti
+
   connector-import-file-stix:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/connector-import-file-stix:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
@@ -152,10 +190,16 @@ services:
     restart: always
     depends_on:
       - opencti
+      
   connector-import-document:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
     image: opencti/connector-import-document:6.0.10
     environment:
-      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
@@ -170,10 +214,31 @@ services:
     restart: always
     depends_on:
       - opencti
+      
+  connector-disarm-framework:
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.role == opencti-core
+    image: opencti/connector-disarm-framework:6.0.10
+    environment:
+      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${DISARM_CONNECTOR_ID}
+      - "CONNECTOR_NAME=DISARM Framework"
+      - CONNECTOR_SCOPE=marking-definition,identity,attack-pattern,course-of-action,intrusion-set,campaign,malware,tool,report,narrative,event,channel
+      - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=error
+      - DISARM_FRAMEWORK_URL=https://raw.githubusercontent.com/DISARMFoundation/DISARMframeworks/main/generated_files/DISARM_STIX/DISARM.json
+      - DISARM_FRAMEWORK_INTERVAL=7 # In days, must be strictly greater than 1
+    restart: always
+    depends_on:
+      - opencti
 
 volumes:
   esdata:
   s3data:
   redisdata:
   amqpdata:
-
