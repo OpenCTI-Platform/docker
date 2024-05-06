@@ -214,7 +214,7 @@ services:
     restart: always
     depends_on:
       - opencti
-      
+    
   connector-disarm-framework:
     deploy:
       replicas: 1
