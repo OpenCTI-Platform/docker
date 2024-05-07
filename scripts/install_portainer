@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+
+# Function to install Portainer
+install_portainer() {
+    # Create directory and navigate into it
+    mkdir -p /opt/portainer && cd /opt/portainer
+
+    # Download the Portainer agent stack file
+    curl -L https://downloads.portainer.io/portainer-agent-stack.yml -o portainer-agent-stack.yml
+
+    # Deploy Portainer using Docker stack
+    docker stack deploy --compose-file=portainer-agent-stack.yml portainer
+}
+
+main() {
+    install_portainer
+}
+
+main
