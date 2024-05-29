@@ -150,7 +150,7 @@ services:
     depends_on:
       - opencti
   connector-import-document:
-    image: opencti/connector-import-document:6.1.5
+    image: opencti/connector-import-document:6.1.6
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
