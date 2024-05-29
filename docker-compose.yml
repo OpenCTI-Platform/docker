@@ -28,7 +28,7 @@ services:
         soft: 65536
         hard: 65536
   minio:
-    image: minio/minio:RELEASE.2024-01-16T16-07-38Z # Use "minio/minio:RELEASE.2024-01-16T16-07-38Z-cpuv1" to troubleshoot compatibility issues with CPU
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z # Use "minio/minio:RELEASE.2024-05-28T17-19-04Z-cpuv1" to troubleshoot compatibility issues with CPU
     volumes:
       - s3data:/data
     ports:
