@@ -80,7 +80,7 @@ services:
       - rabbitmq
     restart: always
   worker:
-    image: opencti/worker:6.0.10
+    image: opencti/worker:6.1.5
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
