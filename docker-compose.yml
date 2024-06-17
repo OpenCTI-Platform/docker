@@ -167,7 +167,7 @@ services:
     depends_on:
       - opencti
   connector-analysis:
-    image: opencti/connector-import-document:6.1.8
+    image: opencti/connector-import-document:6.1.11
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
