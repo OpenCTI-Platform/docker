@@ -13,6 +13,7 @@ services:
       - discovery.type=single-node
       - plugins.security.disabled=true
       - "OPENSEARCH_JAVA_OPTS=-Xms8G -Xmx8G"
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
     restart: unless-stopped
     ulimits:
       memlock:
