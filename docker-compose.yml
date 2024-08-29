@@ -4,6 +4,11 @@ services:
     restart: always
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
     volumes:
@@ -26,6 +31,11 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    healthcheck:
+      test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 50
   minio:
     image: minio/minio:RELEASE.2024-05-28T17-19-04Z # Use "minio/minio:RELEASE.2024-05-28T17-19-04Z-cpuv1" to troubleshoot compatibility issues with CPU
     volumes:
@@ -37,6 +47,11 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
     command: server /data
     restart: always
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   rabbitmq:
     image: rabbitmq:3.13-management
     environment:
@@ -46,6 +61,11 @@ services:
     volumes:
       - amqpdata:/var/lib/rabbitmq
     restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
   opencti:
     image: opencti/platform:6.2.16
     environment:
@@ -73,14 +93,24 @@ services:
       - SMTP__HOSTNAME=${SMTP_HOSTNAME}
       - SMTP__PORT=25
       - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
+      - APP__HEALTH_ACCESS_KEY=${OPENCTI_HEALTHCHECK_ACCESS_KEY}
     ports:
       - "8080:8080"
     depends_on:
-      - redis
-      - elasticsearch
-      - minio
-      - rabbitmq
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: always
+    healthcheck:
+      test:  ["CMD", "wget", "-qO-", "http://opencti:8080/health?health_access_key=${OPENCTI_HEALTHCHECK_ACCESS_KEY}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
   worker:
     image: opencti/worker:6.2.16
     environment:
@@ -88,7 +118,8 @@ services:
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - WORKER_LOG_LEVEL=info
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
     deploy:
       mode: replicated
       replicas: 3
@@ -105,7 +136,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:6.2.16
     environment:
@@ -118,7 +150,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
   connector-export-file-txt:
     image: opencti/connector-export-file-txt:6.2.16
     environment:
@@ -131,7 +164,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:6.2.16
     environment:
@@ -146,7 +180,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
   connector-import-document:
     image: opencti/connector-import-document:6.2.16
     environment:
@@ -164,7 +199,8 @@ services:
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
   connector-analysis:
     image: opencti/connector-import-document:6.2.16
     environment:
@@ -181,7 +217,8 @@ services:
       - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
-      - opencti
+      opencti:
+        condition: service_healthy
 
 volumes:
   esdata:
