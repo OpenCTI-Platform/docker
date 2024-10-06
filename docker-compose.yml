@@ -2,6 +2,7 @@ services:
   redis:
     image: redis:7.4.0
     restart: always
+    command: ["redis-server", "--appendonly", "no", "--maxmemory", "2gb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - redisdata:/data
     healthcheck:
