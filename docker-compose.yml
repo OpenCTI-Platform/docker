@@ -16,6 +16,7 @@ services:
       # - cluster.name=docker-cluster
       - plugins.security.disabled=true
       - thread_pool.search.queue_size=5000
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
       - "OPENSEARCH_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
     restart: always
     ulimits:
@@ -57,6 +58,8 @@ services:
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__URL=http://elasticsearch:9200
+      - ELASTICSEARCH__USERNAME=admin
+      - ELASTICSEARCH__PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
       - MINIO__ENDPOINT=minio
       - MINIO__PORT=9000
       - MINIO__USE_SSL=false
