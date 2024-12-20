@@ -6,7 +6,7 @@ services:
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: opensearchproject/opensearch:2.14.0
+    image: opensearchproject/opensearch:2.18.0
     volumes:
       - esdata:/usr/share/opensearch/data
     environment:
