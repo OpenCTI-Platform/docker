@@ -60,6 +60,7 @@ services:
       - RABBITMQ_NODENAME=rabbit01@localhost
     volumes:
       - amqpdata:/var/lib/rabbitmq
+      - ./rabbitmq/user.conf:/etc/rabbitmq/conf.d/20-user.conf
     restart: always
     healthcheck:
       test: rabbitmq-diagnostics -q ping
