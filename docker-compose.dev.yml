@@ -48,6 +48,10 @@ services:
   opencti-dev-rabbitmq:
     container_name: opencti-dev-rabbitmq
     image: rabbitmq:4.0-management
+    volumes:
+      - type: bind
+        source: rabbitmq.conf
+        target: /etc/rabbitmq/rabbitmq.conf
     restart: unless-stopped
     ports:
       - "5672:5672"
