@@ -60,7 +60,7 @@ services:
       - RABBITMQ_NODENAME=rabbit01@localhost
     volumes:
       - type: bind
-        source: rabbitmq.conf
+        source: ./rabbitmq.conf
         target: /etc/rabbitmq/rabbitmq.conf 
       - amqpdata:/var/lib/rabbitmq
     restart: always
