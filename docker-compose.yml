@@ -111,7 +111,7 @@ services:
       timeout: 5s
       retries: 20
   worker:
-    image: opencti/worker:6.6.3
+    image: opencti/worker:6.6.6
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
