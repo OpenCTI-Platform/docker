@@ -64,7 +64,7 @@ services:
       timeout: 30s
       retries: 3    
   opencti:
-    image: opencti/platform:6.6.3
+    image: opencti/platform:6.6.6
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
