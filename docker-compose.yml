@@ -53,7 +53,7 @@ services:
       timeout: 5s
       retries: 3
   rabbitmq:
-    image: rabbitmq:4.0-management
+    image: rabbitmq:4.1-management
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
