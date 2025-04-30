@@ -5,6 +5,11 @@ services:
     restart: always
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   elasticsearch:
     image: opensearchproject/opensearch:2.19.1
     volumes:
@@ -27,7 +32,7 @@ services:
         soft: 65536
         hard: 65536
     healthcheck:
-      test: curl -s http://opensearch:9200 >/dev/null || exit 1
+      test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
       interval: 30s
       timeout: 10s
       retries: 50    
@@ -75,7 +80,7 @@ services:
       - APP__APP_LOGS__LOGS_LEVEL=error
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
-      - ELASTICSEARCH__URL=http://opensearch:9200
+      - ELASTICSEARCH__URL=http://elasticsearch:9200
       - ELASTICSEARCH__USERNAME=admin
       - ELASTICSEARCH__PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
       - MINIO__ENDPOINT=minio
