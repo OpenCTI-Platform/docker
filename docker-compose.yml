@@ -11,7 +11,7 @@ services:
       timeout: 5s
       retries: 3
   elasticsearch:
-    image: opensearchproject/opensearch:2.19.1
+    image: opensearchproject/opensearch:2.19.2
     volumes:
       - esdata:/usr/share/opensearch/data
     environment:
