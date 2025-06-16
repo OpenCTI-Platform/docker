@@ -32,7 +32,7 @@ services:
         soft: 65536
         hard: 65536
     healthcheck:
-      test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
+      test: ["CMD-SHELL", "curl -fs http://elasticsearch:9200/_cluster/health?wait_for_status=yellow || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 50
