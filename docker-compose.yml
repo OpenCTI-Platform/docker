@@ -37,7 +37,7 @@ services:
       timeout: 3s
       retries: 50
   minio:
-    image: minio/minio:RELEASE.2024-05-28T17-19-04Z # Use "minio/minio:RELEASE.2024-05-28T17-19-04Z-cpuv1" to troubleshoot compatibility issues with CPU
+    image: minio/minio:RELEASE.2025-06-13T11-33-47Z
     volumes:
       - s3data:/data
     ports:
