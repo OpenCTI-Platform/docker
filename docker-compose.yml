@@ -159,7 +159,7 @@ services:
       opencti:
         condition: service_healthy 
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:6.6.17
+    image: opencti/connector-export-file-txt:6.7.4
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
