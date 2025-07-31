@@ -70,7 +70,7 @@ services:
       timeout: 30s
       retries: 3
   opencti:
-    image: opencti/platform:6.7.8
+    image: opencti/platform:6.7.9
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -116,7 +116,7 @@ services:
       timeout: 5s
       retries: 20
   worker:
-    image: opencti/worker:6.7.8
+    image: opencti/worker:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -129,7 +129,7 @@ services:
       replicas: 3
     restart: always
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:6.7.8
+    image: opencti/connector-export-file-stix:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -143,7 +143,7 @@ services:
       opencti:
         condition: service_healthy
   connector-export-file-csv:
-    image: opencti/connector-export-file-csv:6.7.8
+    image: opencti/connector-export-file-csv:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -157,7 +157,7 @@ services:
       opencti:
         condition: service_healthy
   connector-export-file-txt:
-    image: opencti/connector-export-file-txt:6.7.8
+    image: opencti/connector-export-file-txt:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -171,7 +171,7 @@ services:
       opencti:
         condition: service_healthy
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:6.7.8
+    image: opencti/connector-import-file-stix:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -187,7 +187,7 @@ services:
       opencti:
         condition: service_healthy
   connector-import-document:
-    image: opencti/connector-import-document:6.7.8
+    image: opencti/connector-import-document:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -205,7 +205,7 @@ services:
       opencti:
         condition: service_healthy
   connector-analysis:
-    image: opencti/connector-import-document:6.7.8
+    image: opencti/connector-import-document:6.7.9
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
