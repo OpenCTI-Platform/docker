@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:8.0.3
+    image: redis:8.2.1
     restart: always
     volumes:
       - redisdata:/data
