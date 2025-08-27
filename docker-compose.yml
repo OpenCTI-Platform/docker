@@ -171,7 +171,7 @@ services:
       opencti:
         condition: service_healthy 
   connector-import-file-stix:
-    image: opencti/connector-import-file-stix:6.7.10
+    image: opencti/connector-import-file-stix:6.7.15
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
