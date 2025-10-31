@@ -13,7 +13,7 @@ services:
       retries: 3
     restart: always
   redis:
-    image: redis:8.2.1
+    image: redis:8.2.2
     restart: always
     volumes:
       - redisdata:/data
