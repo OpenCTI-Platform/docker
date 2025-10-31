@@ -112,7 +112,7 @@ services:
       - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
       - APP__HEALTH_ACCESS_KEY=${OPENCTI_HEALTHCHECK_ACCESS_KEY}
     ports:
-      - "8080:8080"
+      - "${OPENCTI_HOST_PORT}:8080"
     depends_on:
       redis:
         condition: service_healthy
