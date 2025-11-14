@@ -4,7 +4,7 @@ services:
     image: alpine/openssl:3.5.2
     volumes:
       - rsakeys:/keys
-    entrypoint: ["/bin/bash"]
+    entrypoint: ["/bin/ash"]
     command: ["-c", "if [ ! -f /keys/private_key.pem ]; then openssl genpkey -algorithm RSA -out /keys/private_key.pem -pkeyopt rsa_keygen_bits:4096; fi && tail -f /dev/null"]
     healthcheck:
       test: ["CMD", "test", "-f", "/keys/private_key.pem"]
