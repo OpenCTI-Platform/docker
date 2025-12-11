@@ -236,7 +236,7 @@ services:
       opencti:
         condition: service_healthy
   xtm-composer:
-    image: filigran/xtm-composer:1.0.0
+    image: filigran/xtm-composer:1.0.1
     platform: linux/amd64
     environment:
       - MANAGER__ID=${XTM_COMPOSER_ID}
