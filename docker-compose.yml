@@ -129,7 +129,6 @@ services:
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - APP__APP_LOGS__LOGS_LEVEL=error
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__URL=http://elasticsearch:9200
@@ -171,7 +170,6 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - WORKER_LOG_LEVEL=info
     depends_on:
       opencti:
         condition: service_healthy
@@ -179,6 +177,11 @@ services:
       mode: replicated
       replicas: 3
     restart: always
+
+  ###########################
+  # OPENCTI CONNECTORS      #
+  ###########################
+
   connector-export-file-stix:
     image: opencti/connector-export-file-stix:6.9.0
     environment:
@@ -188,7 +191,6 @@ services:
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
-      - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
       opencti:
@@ -202,7 +204,6 @@ services:
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=text/csv
-      - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
       opencti:
@@ -216,7 +217,6 @@ services:
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileTxt
       - CONNECTOR_SCOPE=text/plain
-      - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
       opencti:
@@ -232,7 +232,6 @@ services:
       - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
       - CONNECTOR_SCOPE=application/json,text/xml
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
       opencti:
@@ -249,8 +248,22 @@ services:
       - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
-      - CONNECTOR_LOG_LEVEL=info
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+  connector-import-file-yara:
+    image: opencti/connector-import-file-yara:6.9.0
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_YARA_ID} # Valid UUIDv4
+      - CONNECTOR_NAME=ImportFileYARA
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_SCOPE=text/yara+plain
+      - CONNECTOR_AUTO=false # Enable/disable auto-import of file
+      - YARA_IMPORT_FILE_SPLIT_RULES=true
     restart: always
     depends_on:
       opencti:
@@ -267,12 +280,53 @@ services:
       - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
-      - CONNECTOR_LOG_LEVEL=info
     restart: always
     depends_on:
       opencti:
         condition: service_healthy
+  connector-import-external-reference:
+    image: opencti/connector-import-external-reference:6.9.0
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_EXTERNAL_REFERENCE_ID}
+      - CONNECTOR_NAME=ImportExternalReference
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy          
 
+  ###########################
+  # OPENCTI DEFAULT DATA    #
+  ###########################
+
+  connector-opencti:
+    image: opencti/connector-opencti:6.9.0
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_OPENCTI_ID}
+      - "CONNECTOR_NAME=OpenCTI Datasets"
+      - CONNECTOR_SCOPE=marking-definition,identity,location
+      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT=true
+      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=100
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy      
+  connector-mitre:
+    image: opencti/connector-mitre:6.9.0
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=${CONNECTOR_MITRE_ID}
+      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT=true
+      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=75      
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy      
+        
 volumes:
   esdata:
   s3data:
