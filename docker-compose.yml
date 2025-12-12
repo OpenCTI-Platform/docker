@@ -97,7 +97,7 @@ services:
     platform: linux/amd64
     environment:
       - MANAGER__ID=${XTM_COMPOSER_ID}
-      - MANAGER__NAME=OpenCTI Connector Manager
+      - "MANAGER__NAME=XTM Integrations Manager"
       - MANAGER__CREDENTIALS_KEY_FILEPATH=/keys/private_key.pem
       - OPENCTI__ENABLE=true
       - OPENCTI__URL=http://opencti:8080
@@ -326,7 +326,7 @@ services:
     depends_on:
       opencti:
         condition: service_healthy      
-        
+
 volumes:
   esdata:
   s3data:
