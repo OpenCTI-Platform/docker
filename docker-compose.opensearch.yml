@@ -6,7 +6,7 @@ services:
 
   # Generate RSA key for xtm-composer (PKCS#8 format)
   rsa-key-generator:
-    image: alpine/openssl:3.5.2
+    image: alpine/openssl:3.5.4
     volumes:
       - rsakeys:/keys
     entrypoint: ["/bin/ash"]
