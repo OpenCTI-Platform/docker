@@ -28,7 +28,7 @@ services:
       timeout: 5s
       retries: 3
   opensearch:
-    image: opensearchproject/opensearch:3.3.2
+    image: opensearchproject/opensearch:3.4.0
     volumes:
       - esdata:/usr/share/opensearch/data
     environment:
