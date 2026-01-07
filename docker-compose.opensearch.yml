@@ -255,7 +255,7 @@ services:
       opencti:
         condition: service_healthy
   connector-import-file-yara:
-    image: opencti/connector-import-file-yara:6.9.0
+    image: opencti/connector-import-file-yara:6.9.6
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
