@@ -316,7 +316,7 @@ services:
       opencti:
         condition: service_healthy      
   connector-mitre:
-    image: opencti/connector-mitre:6.9.0
+    image: opencti/connector-mitre:6.9.6
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
