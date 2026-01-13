@@ -28,7 +28,7 @@ services:
       timeout: 5s
       retries: 3
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.9
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.4
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
