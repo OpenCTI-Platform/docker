@@ -184,7 +184,7 @@ services:
   ###########################
 
   connector-export-file-stix:
-    image: opencti/connector-export-file-stix:6.9.6
+    image: opencti/connector-export-file-stix:6.9.23
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
