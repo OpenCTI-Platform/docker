@@ -140,7 +140,9 @@ services:
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
-      - APP__BASE_URL=${OPENCTI_EXTERNAL_SCHEME}://${OPENCTI_HOST}:${OPENCTI_PORT}
+      # APP__BASE_URL is used as the JWT ``aud`` validation target.  It MUST
+      # match what XTM One puts in the JWT audience claim (the internal URL).
+      - APP__BASE_URL=http://opencti:8080
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -355,7 +357,10 @@ services:
     environment:
       - PLATFORM_MODE=xtm_one
       - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
-      - BASE_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
+      # BASE_URL is used as the JWT ``iss`` claim AND as the JWKS host that
+      # peer platforms (OpenCTI) fetch keys from.  It MUST be the internal
+      # Docker hostname so peers can verify tokens.
+      - BASE_URL=http://xtm-one:4000
       - FRONTEND_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
       - ADMIN_EMAIL=${XTM_ONE_ADMIN_EMAIL}
       - ADMIN_PASSWORD=${XTM_ONE_ADMIN_PASSWORD}
