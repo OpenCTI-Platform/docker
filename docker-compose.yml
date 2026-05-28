@@ -353,6 +353,9 @@ services:
   ###########################
 
   xtm-one:
+    build:
+      context: ../xtm-one
+      dockerfile: Dockerfile
     image: filigran/xtm-one:${XTM_ONE_VERSION:-rolling}
     environment:
       - PLATFORM_MODE=xtm_one
@@ -398,6 +401,9 @@ services:
       start_period: 60s
 
   xtm-one-worker:
+    build:
+      context: ../xtm-one
+      dockerfile: Dockerfile.worker
     image: filigran/xtm-one-worker:${XTM_ONE_VERSION:-rolling}
     environment:
       - PLATFORM_MODE=xtm_one
