@@ -329,7 +329,7 @@ services:
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy      
+        condition: service_healthy
 
   ###########################
   # XTM ONE                 #
