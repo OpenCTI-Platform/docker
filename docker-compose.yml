@@ -352,7 +352,7 @@ services:
       retries: 5
 
   xtm-one:
-    image: filigran/xtm-one:${XTM_ONE_VERSION:-rolling}
+    image: xtmone/platform:${XTM_ONE_VERSION:-rolling}
     environment:
       - PLATFORM_MODE=xtm_one
       - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
@@ -391,7 +391,7 @@ services:
       start_period: 60s
 
   xtm-one-worker:
-    image: filigran/xtm-one-worker:${XTM_ONE_VERSION:-rolling}
+    image: xtmone/worker:${XTM_ONE_VERSION:-rolling}
     environment:
       - PLATFORM_MODE=xtm_one
       - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
