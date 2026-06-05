@@ -54,6 +54,21 @@ services:
       interval: 5s
       timeout: 3s
       retries: 50
+  pgsql-xtm-one:
+    # Dedicated pgvector-enabled instance for XTM One.
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${XTM_ONE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${XTM_ONE_POSTGRES_PASSWORD}
+      POSTGRES_DB: xtm_one
+    volumes:
+      - pgsqlxtmonedata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${XTM_ONE_POSTGRES_USER}", "-d", "xtm_one" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   minio:
     image: minio/minio:latest
     volumes:
@@ -334,22 +349,6 @@ services:
   ###########################
   # XTM ONE                 #
   ###########################
-
-  pgsql-xtm-one:
-    # Dedicated pgvector-enabled instance for XTM One.
-    image: pgvector/pgvector:pg17
-    environment:
-      POSTGRES_USER: ${XTM_ONE_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${XTM_ONE_POSTGRES_PASSWORD}
-      POSTGRES_DB: xtm_one
-    volumes:
-      - pgsqlxtmonedata:/var/lib/postgresql/data
-    restart: always
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${XTM_ONE_POSTGRES_USER}", "-d", "xtm_one" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   xtm-one:
     image: xtmone/platform:latest
