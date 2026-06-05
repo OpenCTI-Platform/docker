@@ -150,6 +150,9 @@ services:
       - SMTP__PORT=25
       - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
       - APP__HEALTH_ACCESS_KEY=${OPENCTI_HEALTHCHECK_ACCESS_KEY}
+      # XTM One
+      - XTM__XTM_ONE_URL=http://xtm-one:4000
+      - XTM__XTM_ONE_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
     ports:
       - "${OPENCTI_PORT}:8080"
     depends_on:
@@ -329,9 +332,92 @@ services:
       opencti:
         condition: service_healthy
 
+  ###########################
+  # XTM ONE                 #
+  ###########################
+
+  pgsql-xtm-one:
+    # Dedicated pgvector-enabled instance for XTM One.
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${XTM_ONE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${XTM_ONE_POSTGRES_PASSWORD}
+      POSTGRES_DB: xtm_one
+    volumes:
+      - pgsqlxtmonedata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${XTM_ONE_POSTGRES_USER}", "-d", "xtm_one" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  xtm-one:
+    image: xtmone/platform:latest
+    environment:
+      - PLATFORM_MODE=xtm_one
+      - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
+      - BASE_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
+      - FRONTEND_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
+      - ADMIN_EMAIL=${XTM_ONE_ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${XTM_ONE_ADMIN_PASSWORD}
+      - SECRET_KEY=${XTM_ONE_SECRET_KEY}
+      - DATABASE_URL=postgresql+asyncpg://${XTM_ONE_POSTGRES_USER}:${XTM_ONE_POSTGRES_PASSWORD}@pgsql-xtm-one:5432/xtm_one
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=minio:9000
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - S3_BUCKET=${XTM_ONE_S3_BUCKET:-xtm-one-files}
+      - S3_USE_SSL=false
+      - LOG_LEVEL=${XTM_ONE_LOG_LEVEL:-info}
+      - LOG_FORMAT=${XTM_ONE_LOG_FORMAT:-json}
+      - ENTERPRISE_LICENSE=${XTM_ONE_ENTERPRISE_LICENSE:-}
+      # Internal API endpoint for the OpenCTI integration (Docker hostname)
+      - OPENCTI_API_URL=http://opencti:8080
+    ports:
+      - "${XTM_ONE_PORT}:4000"
+    depends_on:
+      pgsql-xtm-one:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4000/api/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  xtm-one-worker:
+    image: xtmone/worker:latest
+    environment:
+      - PLATFORM_MODE=xtm_one
+      - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
+      - ADMIN_EMAIL=${XTM_ONE_ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${XTM_ONE_ADMIN_PASSWORD}
+      - SECRET_KEY=${XTM_ONE_SECRET_KEY}
+      - DATABASE_URL=postgresql+asyncpg://${XTM_ONE_POSTGRES_USER}:${XTM_ONE_POSTGRES_PASSWORD}@pgsql-xtm-one:5432/xtm_one
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=minio:9000
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - S3_BUCKET=${XTM_ONE_S3_BUCKET:-xtm-one-files}
+      - S3_USE_SSL=false
+      - LOG_LEVEL=${XTM_ONE_LOG_LEVEL:-info}
+      - LOG_FORMAT=${XTM_ONE_LOG_FORMAT:-json}
+      - ENTERPRISE_LICENSE=${XTM_ONE_ENTERPRISE_LICENSE:-}
+    depends_on:
+      xtm-one:
+        condition: service_healthy
+    restart: always
+
 volumes:
   esdata:
   s3data:
   redisdata:
   amqpdata:
   rsakeys:
+  pgsqlxtmonedata:
