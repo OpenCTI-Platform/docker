@@ -70,7 +70,8 @@ services:
       timeout: 5s
       retries: 5
   minio:
-    image: minio/minio:latest
+    image: alpine/minio:RELEASE.2025-10-15T17-29-55Z
+    user: "0:0"
     volumes:
       - s3data:/data
     ports:
@@ -81,7 +82,7 @@ services:
     command: server /data
     restart: always
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 3
