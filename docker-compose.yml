@@ -70,7 +70,7 @@ services:
       timeout: 5s
       retries: 5
   minio:
-    image: minio/minio:latest
+    image: pgsty/silo:latest
     volumes:
       - s3data:/data
     ports:
