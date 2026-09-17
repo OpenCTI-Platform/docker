@@ -65,7 +65,7 @@ services:
       - pgsqlxtmonedata:/var/lib/postgresql/data
     restart: always
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${XTM_ONE_POSTGRES_USER}", "-d", "xtm_one" ]
+      test: ["CMD", "pg_isready", "-U", "${XTM_ONE_POSTGRES_USER}", "-d", "xtm_one"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -77,7 +77,7 @@ services:
       - "9000:9000"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data
     restart: always
     healthcheck:
@@ -94,7 +94,7 @@ services:
     volumes:
       - type: bind
         source: ./rabbitmq.conf
-        target: /etc/rabbitmq/rabbitmq.conf 
+        target: /etc/rabbitmq/rabbitmq.conf
       - amqpdata:/var/lib/rabbitmq
     restart: always
     healthcheck:
@@ -134,7 +134,7 @@ services:
   ###########################
   # OPENCTI                 #
   ###########################
-  
+
   opencti:
     image: opencti/platform:latest
     environment:
@@ -180,7 +180,7 @@ services:
         condition: service_healthy
     restart: always
     healthcheck:
-      test:  ["CMD", "wget", "-qO-", "http://opencti:8080/health?health_access_key=${OPENCTI_HEALTHCHECK_ACCESS_KEY}"]
+      test: ["CMD", "wget", "-qO-", "http://opencti:8080/health?health_access_key=${OPENCTI_HEALTHCHECK_ACCESS_KEY}"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -313,7 +313,7 @@ services:
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy          
+        condition: service_healthy
 
   ###########################
   # OPENCTI DEFAULT DATA    #
@@ -332,7 +332,7 @@ services:
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy      
+        condition: service_healthy
   connector-mitre:
     image: opencti/connector-mitre:latest
     environment:
@@ -340,7 +340,7 @@ services:
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_MITRE_ID}
       - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT=true
-      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=75      
+      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=75
     restart: always
     depends_on:
       opencti:
