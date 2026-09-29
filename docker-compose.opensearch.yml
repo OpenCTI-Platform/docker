@@ -374,6 +374,10 @@ services:
       - ENTERPRISE_LICENSE=${XTM_ONE_ENTERPRISE_LICENSE:-}
       # Internal API endpoint for the OpenCTI integration (Docker hostname)
       - OPENCTI_API_URL=http://opencti:8080
+      # The URL OpenCTI reaches XTM One on (XTM__XTM_ONE_URL): accepted as the
+      # audience of the tokens OpenCTI sends, for OpenCTI versions that address
+      # them to that URL instead of the BASE_URL above
+      - XTM_AUTH_ACCEPTED_AUDIENCES=http://xtm-one:4000
     ports:
       - "${XTM_ONE_PORT}:4000"
     depends_on:
@@ -396,6 +400,10 @@ services:
     environment:
       - PLATFORM_MODE=xtm_one
       - PLATFORM_REGISTRATION_TOKEN=${PLATFORM_REGISTRATION_TOKEN}
+      # Same public URL as the xtm-one service: the worker signs the tokens of
+      # background work (assignments, delegated tasks) sent to OpenCTI
+      - BASE_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
+      - FRONTEND_URL=${XTM_ONE_EXTERNAL_SCHEME}://${XTM_ONE_HOST}:${XTM_ONE_PORT}
       - ADMIN_EMAIL=${XTM_ONE_ADMIN_EMAIL}
       - ADMIN_PASSWORD=${XTM_ONE_ADMIN_PASSWORD}
       - SECRET_KEY=${XTM_ONE_SECRET_KEY}
