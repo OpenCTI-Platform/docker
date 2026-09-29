@@ -22,10 +22,10 @@ All XTM One configuration (admin credentials, dedicated Postgres credentials, S3
 
 Each product has two URLs in this stack:
 
-- the **public URL** you open in your browser, built from `OPENCTI_HOST` / `OPENCTI_PORT` and `XTM_ONE_HOST` / `XTM_ONE_PORT`. It is also the identity each product signs its requests to the other with, so it is set on both XTM One containers (`BASE_URL`) and on OpenCTI (`APP__BASE_URL`);
+- the **public URL** you open in your browser, built from `OPENCTI_EXTERNAL_SCHEME` / `OPENCTI_HOST` / `OPENCTI_PORT` and `XTM_ONE_EXTERNAL_SCHEME` / `XTM_ONE_HOST` / `XTM_ONE_PORT` (set the scheme to `https` together with the host when you publish them over TLS). It is also the identity each product signs its requests to the other with, so it is set on both XTM One containers (`BASE_URL`) and on OpenCTI (`APP__BASE_URL`);
 - the **internal URL** the containers reach each other on: `http://opencti:8080` (`OPENCTI_API_URL` on XTM One) and `http://xtm-one:4000` (`XTM__XTM_ONE_URL` on OpenCTI).
 
-The public host name does not need to resolve inside the containers: XTM One fetches OpenCTI's signing keys on the internal URL, and OpenCTI reads XTM One's public identity from `http://xtm-one:4000/xtm/auth/metadata`. This needs XTM One and OpenCTI versions that include [XTM-One-Platform/xtm-one#4880](https://github.com/XTM-One-Platform/xtm-one/issues/4880) and [OpenCTI-Platform/opencti#18564](https://github.com/OpenCTI-Platform/opencti/issues/18564).
+The public host name does not need to resolve inside the containers: XTM One fetches OpenCTI's signing keys on the internal URL, and OpenCTI reads XTM One's public identity from `http://xtm-one:4000/xtm/auth/metadata`. This needs XTM One and OpenCTI releases that include [XTM-One-Platform/xtm-one#4883](https://github.com/XTM-One-Platform/xtm-one/pull/4883) and [OpenCTI-Platform/opencti#18585](https://github.com/OpenCTI-Platform/opencti/pull/18585).
 
 If OpenCTI registers with XTM One but every assistant action on OpenCTI data fails with `401`, the XTM One logs (`XTM JWT rejected`) and the OpenCTI logs (`JWT issuer is not trusted`) name the URL that did not match.
 
