@@ -10,7 +10,7 @@ permissions:
 jobs:
   validate-pr-title:
     name: Validate Conventional PR title
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: github.event.pull_request.user.login != 'renovate[bot]' && !startsWith(github.event.pull_request.title, '[Snyk]')
     steps:
       - name: Check Conventional Commit title
