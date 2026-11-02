@@ -4,6 +4,14 @@
 
 You can find the detailed documentation about the Docker installation in the [OpenCTI documentation space](https://docs.opencti.io/latest/deployment/installation/#using-docker).
 
+## Object storage
+
+The `minio` service runs [RustFS](https://rustfs.com), an open source (Apache 2.0) S3-compatible object storage. The service name, the `s3data` volume and the `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` variables keep their former names, so the OpenCTI and XTM One settings do not change.
+
+Upgrading a stack that ran MinIO or Silo: RustFS does not start on an `s3data` volume written by MinIO or Silo (`Permission denied`: that volume belongs to root, RustFS runs as uid 10001). Back up the volume and follow the migration guide listed in the [breaking changes of the OpenCTI documentation](https://docs.opencti.io/latest/deployment/breaking-changes/) before starting the stack with the new compose file. Its first steps run with the previous compose file: if you update this clone with `git pull`, run them before the pull.
+
+Development stack (`docker-compose.dev.yml`): `opencti-dev-minio` now keeps its data in the named volume `rustfsdata`, which starts empty. Files stored by the previous Silo container stay in its anonymous volume and are not carried over.
+
 ## XTM One
 
 This stack bundles [XTM One](https://filigran.io), Filigran's AI-powered assistant, alongside OpenCTI. The following services are started by default:
