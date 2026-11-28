@@ -166,7 +166,10 @@ services:
         condition: service_healthy
     restart: always
     healthcheck:
-      test:  ["CMD", "wget", "-qO-", "http://opencti:8080/health?health_access_key=${OPENCTI_HEALTHCHECK_ACCESS_KEY}"]
+      # Plain HTTP first (default setup), then HTTPS without certificate checks so
+      # self-signed platforms work: the probe only checks the platform answers.
+      # $$ defers expansion to the container, so special characters in the key work.
+      test: ["CMD-SHELL", "wget -qO- \"http://opencti:8080/health?health_access_key=$${APP__HEALTH_ACCESS_KEY}\" || wget -qO- --no-check-certificate \"https://opencti:8080/health?health_access_key=$${APP__HEALTH_ACCESS_KEY}\""]
       interval: 10s
       timeout: 5s
       retries: 20
